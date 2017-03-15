@@ -1,7 +1,8 @@
 /*========================================================================*/
 /*== DeltaDataCaptute.cpp												==*/
 /*==  Author:Hirofumi Ooiwa												==*/
-/*==  Date:2017.2/22													==*/
+/*==  Date:2017.2/22	初稿												==*/
+/*==  Date:2017.3/16	パターンデータ解析　追加							==*/
 /*========================================================================*/
 /*== <内容>																==*/
 /*== SI-40LA2に接続し、予め指定したファイルに受信データを書込みます。			==*/
@@ -47,20 +48,20 @@
 /*--------------------------------------------------------------------------*/
 /* Global variable                                                          */
 /*--------------------------------------------------------------------------*/
-HINSTANCE	g_hInstance;			/* Save hInstance                       */
-HANDLE		g_hTCPsockThread;		/* Handle of Thread                     */
-FILE		*g_pFile;				/* File pointer							*/
-TCHAR		g_FldPath[MAX_PATH];	/* Folder path of save data             */
-TCHAR		g_FileName[MAX_PATH];	/* File path of save data               */
-LPSTR		g_BeamFldPath;			/* Folder path of save Beam recode		*/
-LPSTR		g_DayRepFldPath;		/* Folder path of save day report		*/
-LPSTR		g_PtnDtFldPath;			/* Folder path of save Pattern data		*/
-BOOL		g_fConnected;			/* Connection status (TRUE = Connect)   */
-DWORD		g_dwCounter;			/* Receive data counter                 */
-WSADATA		g_wsaData;				/* WSADATA data structure               */
-SOCKET		g_sock;					/* Soket Descriptor		                */
-SOCKADDR_IN g_sockaddr;				/* address family		                */
-BOOL		g_fDropdown;			/* Show Dropdown once					*/
+HINSTANCE	g_hInstance;			// Save hInstance
+HANDLE		g_hTCPsockThread;		// Handle of Thread
+FILE		*g_pFile;				// File pointer
+TCHAR		g_FldPath[MAX_PATH];	// Folder path of save data
+TCHAR		g_FileName[MAX_PATH];	// File path of save data
+LPSTR		g_BeamFldPath;			// Folder path of save Beam recode
+LPSTR		g_DayRepFldPath;		// Folder path of save day report
+LPSTR		g_PtnDtFldPath;			// Folder path of save Pattern data
+BOOL		g_fConnected;			// Connection status (TRUE = Connect)
+DWORD		g_dwCounter;			// Receive data counter
+WSADATA		g_wsaData;				// WSADATA data structure
+SOCKET		g_sock;					// Soket Descriptor
+SOCKADDR_IN g_sockaddr;				// address family
+BOOL		g_fDropdown;			// Show Dropdown once
 
 /*--------------------------------------------------------------------------*/
 /* Write data to a file														*/
@@ -153,7 +154,10 @@ unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
 	}
 
 	/* close a file */
-	fclose( g_pFile );
+	if (g_pFile != 0)
+	{
+		fclose(g_pFile);
+	}
 	g_pFile = NULL;
 
 	/* get rid of thread handle */
@@ -518,29 +522,33 @@ BOOL SwitchFiles(HWND hDlg)
 
 	// Categorize(生産レポート or ビームの記録)
 	errno_t err;
-	if (err = (fopen_s(&g_pFile, (const char*)g_FileName, "rb") != 0))
+	if (g_pFile != 0)
 	{
-		MessageBox(hDlg, "Failed to open file.", "Error", MB_ICONEXCLAMATION | MB_OK);
-		return  FALSE;
-	}
-
-	// 文字列"ビームの記録"で識別
-	for (i; i < 10; i++)
-	{
-		fgets(str, 0xF0, g_pFile);
-		if (NULL != strstr(str, cKeyWordBeam))
+		if (err = (fopen_s(&g_pFile, (const char*)g_FileName, "rb") != 0))
 		{
-			bIsBeamRec = true;
-			break;
+			MessageBox(hDlg, "Failed to open file.", "Error", MB_ICONEXCLAMATION | MB_OK);
+			return  FALSE;
 		}
-		else if (NULL != strstr(str, cKeyWordRepo))
-		{
-			bIsDayRepo = true;
-			break;
-		}
-	}
 
-	fclose(g_pFile);
+
+		// 文字列"ビームの記録"で識別
+		for (i; i < 10; i++)
+		{
+			fgets(str, 0xF0, g_pFile);
+			if (NULL != strstr(str, cKeyWordBeam))
+			{
+				bIsBeamRec = true;
+				break;
+			}
+			else if (NULL != strstr(str, cKeyWordRepo))
+			{
+				bIsDayRepo = true;
+				break;
+			}
+		}
+
+		fclose(g_pFile);
+	}
 	g_pFile = NULL;
 
 	// ミス転送と思われる場合
@@ -627,6 +635,8 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 BOOL WmInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam )
 {
+	HICON hIcon;
+
 	// 初期値設定
 	SetDlgItemText(hDlg, IDC_PATH, (LPCSTR)"C:\\Users");
 	SetDlgItemText(hDlg, IDC_SELECT, (LPCSTR)"1号機");
@@ -643,6 +653,10 @@ BOOL WmInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam )
 	g_fDropdown = FALSE;
 
 	SockInitialize( hDlg, g_wsaData );
+
+	// アイコンのセット
+	hIcon = (HICON)LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 16, 16, 0);
+	SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 
 	return TRUE;
 }
