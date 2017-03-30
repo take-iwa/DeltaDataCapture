@@ -535,7 +535,7 @@ BOOL SwitchFiles(HWND hDlg)
 			return  FALSE;
 		}
 
-		if (GetFileSize(g_pFile, NULL) < 256)
+		if (GetFileSizeEx(g_pFile, NULL) < 8)
 		{
 			// 紙送り信号と思われるため、ファイルそっ閉じ
 			fclose(g_pFile);
