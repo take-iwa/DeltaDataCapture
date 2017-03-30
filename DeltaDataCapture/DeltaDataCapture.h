@@ -8,6 +8,7 @@
 // Timer
 #define TM_COUNTER			1
 #define TM_TIMEOUT			2
+#define TM_RECONECT			3
 
 #define MAXBLOCK 80
 

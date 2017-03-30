@@ -283,6 +283,9 @@ BOOL OpenConnection( HWND hDlg )
 
 	if (fResult)
 	{
+		// 定期接続確認
+		SetTimer((HWND)hDlg, TM_RECONECT, (3*60*60*1000), NULL);
+
 		/* set the connection status (Connect) */
 		g_fConnected = TRUE;
 
@@ -371,9 +374,12 @@ BOOL CloseConnection( HWND hDlg )
 	EnableWindow( GetDlgItem( hDlg, IDC_DISCONNECT ), FALSE );
 
 	/* stop the update timer for counter display */
-	KillTimer( hDlg , 1 );
+	KillTimer( hDlg , TM_COUNTER);
 	CounterDisplay( hDlg );
 	
+	// 定期接続確認タイマーOFF
+	KillTimer(hDlg, TM_RECONECT);
+
 	return TRUE;
 
 }
@@ -519,7 +525,7 @@ BOOL SwitchFiles(HWND hDlg)
 	char cKeyWordRepo[] = "&%+%&%s%?";			// 生産レポートの識別子
 	char str[0xFF] = {0};
 
-	// Categorize(生産レポート or ビームの記録)
+	// Categorize(生産レポート or ビームの記録 or パターンデータ)
 	errno_t err;
 	if (g_pFile != 0)
 	{
@@ -529,8 +535,14 @@ BOOL SwitchFiles(HWND hDlg)
 			return  FALSE;
 		}
 
+		if (GetFileSize(g_pFile, NULL) < 256)
+		{
+			// 紙送り信号と思われるため、ファイルそっ閉じ
+			fclose(g_pFile);
+			return TRUE;
+		}
 
-		// 文字列"ビームの記録"で識別
+		// 各文字列識別子にて分類
 		for (i; i < 10; i++)
 		{
 			fgets(str, 0xF0, g_pFile);
@@ -544,18 +556,15 @@ BOOL SwitchFiles(HWND hDlg)
 				bIsDayRepo = true;
 				break;
 			}
+			else
+			{
+				// パターンデータと思われ
+			}
 		}
 
 		fclose(g_pFile);
 	}
 	g_pFile = NULL;
-
-	// ミス転送と思われる場合
-	if (i < 2)
-	{
-		// なにもしない
-		return FALSE;
-	}
 
 	// 時間取得
 	time_t timer;
@@ -605,9 +614,8 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 		// 受信データ数更新
 		CounterDisplay( hDlg );
 	}
-	else
+	else if (LOWORD(wParam) == TM_TIMEOUT)
 	{
-		// TM_TIMEOUT タイムアウト
 		if (0 != g_dwCounter)
 		{
 			// 接続断
@@ -623,6 +631,17 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 		{
 			// タイムアウトタイマー再設定　5秒間データが送られてこない場合、一旦接続断
 			SetTimer((HWND)hDlg, TM_TIMEOUT, 5000, NULL);
+		}
+	}
+	else // TM_RECONECT 定期接続確認
+	{
+		if ((g_fConnected == TRUE) && (g_dwCounter == 0))
+		{
+			// 接続断
+			CloseConnection(hDlg);
+
+			// 再接続
+			OpenConnection(hDlg);
 		}
 	}
 	return TRUE;
