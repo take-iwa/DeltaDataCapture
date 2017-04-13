@@ -523,9 +523,10 @@ BOOL SwitchFiles(HWND hDlg)
 	bool bIsDayRepo = false;
 	char cKeyWordBeam[] = "&%S.-&%`$N5-O?";		// ビームの記録の識別子
 	char cKeyWordRepo[] = "&%+%&%s%?";			// 生産レポートの識別子
+	char cKeyPaperSend[] = ",";					// 紙送り信号
 	char str[0xFF] = {0};
 
-	// Categorize(生産レポート or ビームの記録 or パターンデータ)
+	// Categorize(生産レポート or ビームの記録 or パターンデータ or 紙送り信号)
 	errno_t err;
 	if (g_pFile != 0)
 	{
@@ -533,13 +534,6 @@ BOOL SwitchFiles(HWND hDlg)
 		{
 			MessageBox(hDlg, "Failed to open file.", "Error", MB_ICONEXCLAMATION | MB_OK);
 			return  FALSE;
-		}
-
-		if (GetFileSizeEx(g_pFile, NULL) < 8)
-		{
-			// 紙送り信号と思われるため、ファイルそっ閉じ
-			fclose(g_pFile);
-			return TRUE;
 		}
 
 		// 各文字列識別子にて分類
@@ -556,9 +550,10 @@ BOOL SwitchFiles(HWND hDlg)
 				bIsDayRepo = true;
 				break;
 			}
-			else
+			else if ((i < 2) && (NULL != strstr(str, cKeyPaperSend)))
 			{
-				// パターンデータと思われ
+				// 紙送り信号
+				return FALSE;
 			}
 		}
 
