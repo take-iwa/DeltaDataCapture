@@ -62,6 +62,8 @@ SOCKET		g_sock;					// Soket Descriptor
 SOCKADDR_IN g_sockaddr;				// address family
 BOOL		g_fDropdown;			// Show Dropdown once
 
+BOOL SwitchFiles(HWND hDlg);
+
 /*--------------------------------------------------------------------------*/
 /* Write data to a file														*/
 /*--------------------------------------------------------------------------*/
@@ -488,16 +490,16 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 		switch(SendMessage(hwndComb, CB_GETCURSEL, 0, 0 ))
 		{
 			case 0:		// 1号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.11.11");
+				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.21");
 				break;
 			case 1:		// 2号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.11.12");
+				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.22");
 				break;
 			case 2:		// 5号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.11.15");
+				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.25");
 				break;
 			case 3:		// 6号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.11.16");
+				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.26");
 				break;
 			default:
 				// none
@@ -521,14 +523,14 @@ BOOL SwitchFiles(HWND hDlg)
 	int i = 0;
 	bool bIsBeamRec = false;
 	bool bIsDayRepo = false;
-	char cKeyWordBeam[] = "&%S.-&%`$N5-O?";		// ビームの記録の識別子
+	char cKeyWordBeam[] = "&%`$N5-O?";			// ビームの記録の識別子
 	char cKeyWordRepo[] = "&%+%&%s%?";			// 生産レポートの識別子
 	char cKeyPaperSend[] = ",";					// 紙送り信号
-	char str[0xFF] = {0};
+	char str[0xFF] = {0};						// 検索用
 
 	// Categorize(生産レポート or ビームの記録 or パターンデータ or 紙送り信号)
 	errno_t err;
-	if (g_pFile != 0)
+	if (g_FileName != NULL)
 	{
 		if (err = (fopen_s(&g_pFile, (const char*)g_FileName, "rb") != 0))
 		{
@@ -536,10 +538,10 @@ BOOL SwitchFiles(HWND hDlg)
 			return  FALSE;
 		}
 
-		// 各文字列識別子にて分類
+		// 各文字列識別子にて分類(10列まで確認)
 		for (i; i < 10; i++)
 		{
-			fgets(str, 0xF0, g_pFile);
+			fgets(str, sizeof(str), g_pFile);
 			if (NULL != strstr(str, cKeyWordBeam))
 			{
 				bIsBeamRec = true;
@@ -550,7 +552,7 @@ BOOL SwitchFiles(HWND hDlg)
 				bIsDayRepo = true;
 				break;
 			}
-			else if ((i < 2) && (NULL != strstr(str, cKeyPaperSend)))
+			else if ((i < 1) && (NULL != strstr(str, cKeyPaperSend)))
 			{
 				// 紙送り信号
 				return FALSE;
@@ -653,7 +655,7 @@ BOOL WmInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam )
 	// 初期値設定
 	SetDlgItemText(hDlg, IDC_PATH, (LPCSTR)"C:\\Users");
 	SetDlgItemText(hDlg, IDC_SELECT, (LPCSTR)"1号機");
-	SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.11.11");
+	SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.21");
 	SetDlgItemText(hDlg, IDC_PORTNUMBER, (LPCSTR)"10001");
 
 	/* disable connect and disconnect button */
