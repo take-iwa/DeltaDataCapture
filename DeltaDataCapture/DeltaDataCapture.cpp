@@ -524,6 +524,7 @@ BOOL SwitchFiles(HWND hDlg)
 	bool bIsBeamRec = false;
 	bool bIsDayRepo = false;
 	char cKeyWordBeam[] = "&%`$N5-O?";			// ビームの記録の識別子
+	char cKeyWordBeam2[] = "&%S!<%`$N5-O?";		// ビームの記録の識別子２
 	char cKeyWordRepo[] = "&%+%&%s%?";			// 生産レポートの識別子
 	char cKeyPaperSend[] = ",";					// 紙送り信号
 	char str[0xFF] = {0};						// 検索用
@@ -543,6 +544,11 @@ BOOL SwitchFiles(HWND hDlg)
 		{
 			fgets(str, sizeof(str), g_pFile);
 			if (NULL != strstr(str, cKeyWordBeam))
+			{
+				bIsBeamRec = true;
+				break;
+			}
+			else if (NULL != strstr(str, cKeyWordBeam2))
 			{
 				bIsBeamRec = true;
 				break;
