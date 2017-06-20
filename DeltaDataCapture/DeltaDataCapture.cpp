@@ -52,8 +52,7 @@ HANDLE		g_hTCPsockThread;		// Handle of Thread
 FILE		*g_pFile;				// File pointer
 TCHAR		g_FldPath[MAX_PATH];	// Folder path of save data
 TCHAR		g_FileName[MAX_PATH];	// File path of save data
-LPSTR		g_BeamFldPath;			// Folder path of save Beam recode
-LPSTR		g_DayRepFldPath;		// Folder path of save day report
+LPSTR		g_ReportFldPath;		// Folder path of save Beam recodes and Day Reports
 LPSTR		g_PtnDtFldPath;			// Folder path of save Pattern data
 BOOL		g_fConnected;			// Connection status (TRUE = Connect)
 DWORD		g_dwCounter;			// Receive data counter
@@ -380,7 +379,7 @@ BOOL CloseConnection( HWND hDlg )
 	CounterDisplay( hDlg );
 	
 	// 定期接続確認タイマーOFF
-	KillTimer(hDlg, TM_RECONECT);
+	KillTimer( hDlg, TM_RECONECT);
 
 	return TRUE;
 
@@ -416,14 +415,11 @@ BOOL SaveFilesDlg(HWND hDlg)
 	// フォルダパス取得
 	TCHAR cFldPath1[MAX_PATH];
 	TCHAR cFldPath2[MAX_PATH];
-	TCHAR cFldPath3[MAX_PATH];
 	strncpy_s(cFldPath1, sizeof(cFldPath1), g_FileName, _TRUNCATE);
 	strncpy_s(cFldPath2, sizeof(cFldPath2), g_FileName, _TRUNCATE);
-	strncpy_s(cFldPath3, sizeof(cFldPath3), g_FileName, _TRUNCATE);
 
 	PathRemoveFileSpec(cFldPath1);
 	PathRemoveFileSpec(cFldPath2);
-	PathRemoveFileSpec(cFldPath3);
 
 	/* display save Folder path the on the textbox */
 	SetDlgItemText( hDlg,IDC_PATH, g_FileName);
@@ -432,25 +428,17 @@ BOOL SaveFilesDlg(HWND hDlg)
 	EnableWindow( GetDlgItem( hDlg, IDC_CONNECT ), TRUE );
     
 	// 保存先フォルダ作成
-	// ビームの記録
-	TCHAR cBeamFldName[] = TEXT("/BeamRecode");
-	g_BeamFldPath = (LPSTR)lstrcat(cFldPath1, cBeamFldName);
-	if (PathFileExists(g_BeamFldPath) == false)
+	// ビームの記録+生産レポート
+	TCHAR cBeamFldName[] = TEXT("/Report");
+	g_ReportFldPath = (LPSTR)lstrcat(cFldPath1, cBeamFldName);
+	if (PathFileExists(g_ReportFldPath) == false)
 	{
-		_mkdir(g_BeamFldPath);
-	}
-
-	// 生産レポート
-	TCHAR cDayRepFldName[] = TEXT("/DayReport");
-	g_DayRepFldPath = (LPSTR)lstrcat(cFldPath2, cDayRepFldName);
-	if (PathFileExists(g_DayRepFldPath) == false)
-	{
-		_mkdir(g_DayRepFldPath);
+		_mkdir(g_ReportFldPath);
 	}
 
 	// 引き込み図
 	TCHAR cPtnDtFldName[] = TEXT("/PatternData");
-	g_PtnDtFldPath = (LPSTR)lstrcat(cFldPath3, cPtnDtFldName);
+	g_PtnDtFldPath = (LPSTR)lstrcat(cFldPath2, cPtnDtFldName);
 	if (PathFileExists(g_PtnDtFldPath) == false)
 	{
 		_mkdir(g_PtnDtFldPath);
@@ -543,21 +531,25 @@ BOOL SwitchFiles(HWND hDlg)
 		for (i; i < 10; i++)
 		{
 			fgets(str, sizeof(str), g_pFile);
+			//ビームの記録の識別子
 			if (NULL != strstr(str, cKeyWordBeam))
 			{
 				bIsBeamRec = true;
 				break;
 			}
+			//ビームの記録の識別子２
 			else if (NULL != strstr(str, cKeyWordBeam2))
 			{
 				bIsBeamRec = true;
 				break;
 			}
+			//生産レポートの識別子
 			else if (NULL != strstr(str, cKeyWordRepo))
 			{
 				bIsDayRepo = true;
 				break;
 			}
+			//紙送り信号だけの場合、破棄
 			else if ((i < 1) && (NULL != strstr(str, cKeyPaperSend)))
 			{
 				// 紙送り信号
@@ -581,24 +573,25 @@ BOOL SwitchFiles(HWND hDlg)
 	PathRemoveFileSpec(g_FldPath);
 
 	// Copy
+	// ビームの記録と生産レポートは同じフォルダに保存
 	if (bIsBeamRec)
 	{
 		// ビームの記録
-		strftime((char*)datetime, 80, "\\BeamRecode\\BeamRecode_%Y%m%d%H%M%S.txt", tm);
+		strftime((char*)datetime, 80, "\\Report\\BeamRecode_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sBeamFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sBeamFilePath, false);
 	}
 	else if (bIsDayRepo)
 	{
 		// 生産レポート
-		strftime((char*)datetime, 80, "\\DayReport\\DayReport_%Y%m%d%H%M%S.txt", tm);
+		strftime((char*)datetime, 80, "\\Report\\DayReport_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sDayRepFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sDayRepFilePath, false);
 	}
 	else
 	{
-		// 引っ込み図
-		strftime((char*)datetime, 80, "\\PatternData\\PatternData_%Y-%m-%d-%H%M%S.txt", tm);
+		// 引っ込み図など
+		strftime((char*)datetime, 80, "\\etc\\PatternData_%Y-%m-%d-%H%M%S.txt", tm);
 		LPWSTR sPtnDtFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sPtnDtFilePath, false);
 	}
@@ -612,13 +605,16 @@ BOOL SwitchFiles(HWND hDlg)
 
 BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
+	// データ受信
 	if (LOWORD(wParam) == TM_COUNTER)
 	{
 		// 受信データ数更新
 		CounterDisplay( hDlg );
 	}
+	// タイムアウト
 	else if (LOWORD(wParam) == TM_TIMEOUT)
 	{
+		// データ受信していた場合
 		if (0 != g_dwCounter)
 		{
 			// 接続断
@@ -628,8 +624,12 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 			SwitchFiles(hDlg);
 
 			// 再接続
-			OpenConnection(hDlg);
+			if (OpenConnection(hDlg)) {
+				// できなければ１秒ごとにリトライ
+				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
+			}
 		}
+		// データ受信終了
 		else
 		{
 			// タイムアウトタイマー再設定　5秒間データが送られてこない場合、一旦接続断
@@ -644,7 +644,10 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 			CloseConnection(hDlg);
 
 			// 再接続
-			OpenConnection(hDlg);
+			if (OpenConnection(hDlg)) {
+				// できなければ１秒ごとにリトライ
+				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
+			}
 		}
 	}
 	return TRUE;
