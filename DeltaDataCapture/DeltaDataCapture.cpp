@@ -624,7 +624,7 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 			SwitchFiles(hDlg);
 
 			// 再接続
-			if (OpenConnection(hDlg)) {
+			if (!OpenConnection(hDlg)) {
 				// できなければ１秒ごとにリトライ
 				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
 			}
@@ -644,7 +644,7 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 			CloseConnection(hDlg);
 
 			// 再接続
-			if (OpenConnection(hDlg)) {
+			if (!OpenConnection(hDlg)) {
 				// できなければ１秒ごとにリトライ
 				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
 			}
