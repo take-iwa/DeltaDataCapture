@@ -437,7 +437,7 @@ BOOL SaveFilesDlg(HWND hDlg)
 	}
 
 	// ˆø‚«‚İ}
-	TCHAR cPtnDtFldName[] = TEXT("/PatternData");
+	TCHAR cPtnDtFldName[] = TEXT("/etc");
 	g_PtnDtFldPath = (LPSTR)lstrcat(cFldPath2, cPtnDtFldName);
 	if (PathFileExists(g_PtnDtFldPath) == false)
 	{
@@ -625,6 +625,10 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 			// ÄÚ‘±
 			if (!OpenConnection(hDlg)) {
+
+				// ˆê’UÚ‘±’f
+				CloseConnection(hDlg);
+
 				// ‚Å‚«‚È‚¯‚ê‚Î‚P•b‚²‚Æ‚ÉƒŠƒgƒ‰ƒC
 				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
 			}
@@ -645,6 +649,10 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 			// ÄÚ‘±
 			if (!OpenConnection(hDlg)) {
+
+				// ˆê’UÚ‘±’f
+				CloseConnection(hDlg);
+
 				// ‚Å‚«‚È‚¯‚ê‚Î‚P•b‚²‚Æ‚ÉƒŠƒgƒ‰ƒC
 				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
 			}
