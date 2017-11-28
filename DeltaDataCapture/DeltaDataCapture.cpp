@@ -285,7 +285,7 @@ BOOL OpenConnection( HWND hDlg )
 	if (fResult)
 	{
 		// ’èŠúÚ‘±Šm”F
-		SetTimer((HWND)hDlg, TM_RECONECT, (3*60*60*1000), NULL);
+		SetTimer((HWND)hDlg, TM_RECONECT, (30*60*1000), NULL);		// 1‰ñ/30•ª
 
 		/* set the connection status (Connect) */
 		g_fConnected = TRUE;
