@@ -65,33 +65,33 @@ BOOL SwitchFiles(HWND hDlg);
 /* Write data to a file														*/
 /*--------------------------------------------------------------------------*/
 
-BOOL WriteData( const void *pBuffer, DWORD dwSize )
+BOOL WriteData(const void *pBuffer, DWORD dwSize)
 {
 	int nLength;
 
-	if( g_pFile == NULL )
+	if (g_pFile == NULL)
 	{
 		return FALSE;
 	}
 
-	if( 0 == ( nLength = fwrite( pBuffer, sizeof(BYTE), dwSize, g_pFile )) )
+	if (0 == (nLength = fwrite(pBuffer, sizeof(BYTE), dwSize, g_pFile)))
 	{
 		return FALSE;
 	}
 
-    return TRUE;
+	return TRUE;
 }
 
 /*--------------------------------------------------------------------------*/
 /* Read data form the LAN port												*/
 /*--------------------------------------------------------------------------*/
 
-int ReadTCPSockData( SOCKET sock, char *pBuff, int nBuffLength )
+int ReadTCPSockData(SOCKET sock, char *pBuff, int nBuffLength)
 {
 	int nLength;
 
-	nLength = recv( sock, pBuff, nBuffLength, 0 );
-	if( nLength == SOCKET_ERROR || nLength == 0 )
+	nLength = recv(sock, pBuff, nBuffLength, 0);
+	if (nLength == SOCKET_ERROR || nLength == 0)
 	{
 
 		nLength = 0;
@@ -105,10 +105,10 @@ int ReadTCPSockData( SOCKET sock, char *pBuff, int nBuffLength )
 /* Thread process															*/
 /*--------------------------------------------------------------------------*/
 
-unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
+unsigned __stdcall TCPsockThreadProc(LPVOID hDlg)
 {
 	int nLength;
-	static char Buff[ MAXBLOCK ];
+	static char Buff[MAXBLOCK];
 	bool bOnTimer = false;
 
 	/* create file */
@@ -118,7 +118,7 @@ unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
 		return  FALSE;
 	}
 
-	while ( g_fConnected )
+	while (g_fConnected)
 	{
 		if (bOnTimer == false)
 		{
@@ -127,11 +127,11 @@ unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
 			bOnTimer = true;
 		}
 
-		if( 0 != (nLength = ReadTCPSockData( g_sock, Buff, sizeof(Buff) )) )
+		if (0 != (nLength = ReadTCPSockData(g_sock, Buff, sizeof(Buff))))
 		{
-			if( !WriteData( Buff, (DWORD)nLength ))
+			if (!WriteData(Buff, (DWORD)nLength))
 			{
-				PostMessage( (HWND)hDlg, WM_USER_MSG, LOWORD(UMSG_WRITEWARNING), 0 );
+				PostMessage((HWND)hDlg, WM_USER_MSG, LOWORD(UMSG_WRITEWARNING), 0);
 			}
 			g_dwCounter = g_dwCounter + nLength;
 
@@ -144,9 +144,9 @@ unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
 		}
 		else
 		{
-			if( g_fConnected )
-			{	
-				PostMessage( (HWND)hDlg, WM_USER_MSG, LOWORD(UMSG_RECEIVEWARNING), 0 );
+			if (g_fConnected)
+			{
+				PostMessage((HWND)hDlg, WM_USER_MSG, LOWORD(UMSG_RECEIVEWARNING), 0);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
 	g_pFile = NULL;
 
 	/* get rid of thread handle */
-	CloseHandle( g_hTCPsockThread );
+	CloseHandle(g_hTCPsockThread);
 	g_hTCPsockThread = NULL;
 
 	return TRUE;
@@ -168,18 +168,18 @@ unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
 /*--------------------------------------------------------------------------*/
 /* Initialize the Windows socket											*/
 /*--------------------------------------------------------------------------*/
-BOOL SockInitialize( HWND hDlg, WSADATA wsaData )
+BOOL SockInitialize(HWND hDlg, WSADATA wsaData)
 {
 	WORD wVersionRequested;
 
-	wVersionRequested = MAKEWORD(1,1);
+	wVersionRequested = MAKEWORD(1, 1);
 
-	if( WSAStartup( wVersionRequested, &wsaData ) != 0 ) 
+	if (WSAStartup(wVersionRequested, &wsaData) != 0)
 	{
-		MessageBox( hDlg, "Failed to initialize WinSock!", "Error", MB_OK|MB_ICONSTOP );
+		MessageBox(hDlg, "Failed to initialize WinSock!", "Error", MB_OK | MB_ICONSTOP);
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
@@ -187,10 +187,10 @@ BOOL SockInitialize( HWND hDlg, WSADATA wsaData )
 /* Disconnect of the TCP socket												*/
 /*--------------------------------------------------------------------------*/
 
-BOOL TCPSockDisconnect( HWND hDlg )
+BOOL TCPSockDisconnect(HWND hDlg)
 {
-	shutdown( g_sock, 2 );		/* disables sends or receives on a socket */
-	closesocket( g_sock );		/* closes an existing socket */
+	shutdown(g_sock, 2);		/* disables sends or receives on a socket */
+	closesocket(g_sock);		/* closes an existing socket */
 	g_sock = INVALID_SOCKET;
 	return TRUE;
 }
@@ -199,48 +199,48 @@ BOOL TCPSockDisconnect( HWND hDlg )
 /* Connect of the TCP socket												*/
 /*--------------------------------------------------------------------------*/
 
-BOOL TCPSockConnect( HWND hDlg )
+BOOL TCPSockConnect(HWND hDlg)
 {
 	int nPort;
 	char szPort[10];
 	char szIPaddr[16];
 	char *pIPaddr;
 
-	GetDlgItemText( hDlg, IDC_IPADDRESS, (LPTSTR)szIPaddr, sizeof(szIPaddr) );
+	GetDlgItemText(hDlg, IDC_IPADDRESS, (LPTSTR)szIPaddr, sizeof(szIPaddr));
 	pIPaddr = &szIPaddr[0];
-	GetDlgItemText( hDlg, IDC_PORTNUMBER, (LPTSTR)szPort, sizeof(szPort) );
-	nPort = atoi( szPort );
-	
-	if( szIPaddr[0] == '\0' )
+	GetDlgItemText(hDlg, IDC_PORTNUMBER, (LPTSTR)szPort, sizeof(szPort));
+	nPort = atoi(szPort);
+
+	if (szIPaddr[0] == '\0')
 	{
-		MessageBox( hDlg, "IPaddress is not input!", "Error",MB_OK);
+		MessageBox(hDlg, "IPaddress is not input!", "Error", MB_OK);
 		return FALSE;
 	}
 
-	if( nPort == 0 )
+	if (nPort == 0)
 	{
-		MessageBox( hDlg, "Port number is not input!", "Error",MB_OK);
+		MessageBox(hDlg, "Port number is not input!", "Error", MB_OK);
 		return FALSE;
 	}
 
 	try {
 		/* set the IP address and the port number of the server. */
-		memset( g_sockaddr.sin_zero, 0, sizeof(g_sockaddr.sin_zero) );  /* initialize a structure */
-		g_sockaddr.sin_family		= AF_INET;                          /* Internet */
-		g_sockaddr.sin_addr.s_addr  = inet_addr(pIPaddr);				/* IP address */
-		g_sockaddr.sin_port			= htons(nPort);						/* Port number */
-	
+		memset(g_sockaddr.sin_zero, 0, sizeof(g_sockaddr.sin_zero));  /* initialize a structure */
+		g_sockaddr.sin_family = AF_INET;                          /* Internet */
+		g_sockaddr.sin_addr.s_addr = inet_addr(pIPaddr);				/* IP address */
+		g_sockaddr.sin_port = htons(nPort);						/* Port number */
+
 
 		g_sock = INVALID_SOCKET;
 		/* Create the TCP socket */
-		g_sock = socket( AF_INET, SOCK_STREAM, 0 );
-		if( g_sock == INVALID_SOCKET )
+		g_sock = socket(AF_INET, SOCK_STREAM, 0);
+		if (g_sock == INVALID_SOCKET)
 		{
-			MessageBox( hDlg, "Failed to create socket!", "Error",MB_ICONEXCLAMATION );
+			MessageBox(hDlg, "Failed to create socket!", "Error", MB_ICONEXCLAMATION);
 			return FALSE;
 		}
 
-	    /* establishes a connection to the TCP socket */
+		/* establishes a connection to the TCP socket */
 
 		if (connect(g_sock, (LPSOCKADDR)&g_sockaddr, sizeof(g_sockaddr)) == SOCKET_ERROR)
 		{
@@ -255,60 +255,60 @@ BOOL TCPSockConnect( HWND hDlg )
 	}
 
 
-    return TRUE;
+	return TRUE;
 }
 
 /*--------------------------------------------------------------------------*/
 /* Counter process							                                */
 /*--------------------------------------------------------------------------*/
 
-void CounterDisplay( HWND hDlg )
+void CounterDisplay(HWND hDlg)
 {
 	char szText[10];
 
 	/* display of counter */
-	wsprintf(szText, (LPCSTR)"%d",g_dwCounter);
-	SetDlgItemText( hDlg, IDC_COUNTER, szText );
+	wsprintf(szText, (LPCSTR)"%d", g_dwCounter);
+	SetDlgItemText(hDlg, IDC_COUNTER, szText);
 }
 
 /*--------------------------------------------------------------------------*/
 /* Connection process														*/
 /*--------------------------------------------------------------------------*/
 
-BOOL OpenConnection( HWND hDlg )
+BOOL OpenConnection(HWND hDlg)
 {
 	BOOL fResult;
 	unsigned int ThreadID;
 
 	/* file name check */
-	if( g_FileName == NULL )
+	if (g_FileName == NULL)
 	{
 		return FALSE;
 	}
 
-	fResult = TCPSockConnect( hDlg );
+	fResult = TCPSockConnect(hDlg);
 
 	if (fResult)
 	{
 		// 定期接続確認
-		SetTimer((HWND)hDlg, TM_RECONECT, (20*60*1000), NULL);		// 20min
+		SetTimer((HWND)hDlg, TM_RECONECT, (20 * 60 * 1000), NULL);		// 20min
 
-		/* set the connection status (Connect) */
+																		/* set the connection status (Connect) */
 		g_fConnected = TRUE;
 
 		/* create a secondary thread */
-		if (NULL == ( g_hTCPsockThread = (HANDLE)_beginthreadex(NULL,
-															0,
-															&TCPsockThreadProc,
-															(LPVOID)hDlg,
-															0,
-															&ThreadID)))
+		if (NULL == (g_hTCPsockThread = (HANDLE)_beginthreadex(NULL,
+			0,
+			&TCPsockThreadProc,
+			(LPVOID)hDlg,
+			0,
+			&ThreadID)))
 		{
 			/* set the connection status (Disconnect) */
-			g_fConnected = FALSE ;
-		
+			g_fConnected = FALSE;
+
 			/* close a file */
-			fclose( g_pFile );
+			fclose(g_pFile);
 			g_pFile = NULL;
 
 			fResult = FALSE;
@@ -317,18 +317,18 @@ BOOL OpenConnection( HWND hDlg )
 		{
 
 			/* change the control status */
-			EnableWindow( GetDlgItem( hDlg, IDC_CHANGE ), FALSE );
-			EnableWindow( GetDlgItem( hDlg, IDC_SELECT ), FALSE );
-			EnableWindow( GetDlgItem( hDlg, IDC_IPADDRESS ), FALSE );
-			EnableWindow( GetDlgItem( hDlg, IDC_PORTNUMBER ), FALSE );
-			EnableWindow( GetDlgItem( hDlg, IDC_CONNECT), FALSE );
-			EnableWindow( GetDlgItem( hDlg, IDC_DISCONNECT ), TRUE );
-	
+			EnableWindow(GetDlgItem(hDlg, IDC_CHANGE), FALSE);
+			EnableWindow(GetDlgItem(hDlg, IDC_SELECT), FALSE);
+			EnableWindow(GetDlgItem(hDlg, IDC_IPADDRESS), FALSE);
+			EnableWindow(GetDlgItem(hDlg, IDC_PORTNUMBER), FALSE);
+			EnableWindow(GetDlgItem(hDlg, IDC_CONNECT), FALSE);
+			EnableWindow(GetDlgItem(hDlg, IDC_DISCONNECT), TRUE);
+
 			/* clear the display counter */
 			g_dwCounter = 0;
-			CounterDisplay( hDlg );
+			CounterDisplay(hDlg);
 			/* start the update timer for counter display (0.5s intervals) */
-			SetTimer( hDlg , TM_COUNTER, 500 , NULL );
+			SetTimer(hDlg, TM_COUNTER, 500, NULL);
 		}
 	}
 	else
@@ -337,7 +337,7 @@ BOOL OpenConnection( HWND hDlg )
 		g_fConnected = FALSE;
 
 		/* close a file */
-		fclose( g_pFile );
+		fclose(g_pFile);
 		g_pFile = NULL;
 	}
 
@@ -349,43 +349,43 @@ BOOL OpenConnection( HWND hDlg )
 /* Disconnection process			                                        */
 /*--------------------------------------------------------------------------*/
 
-BOOL CloseConnection( HWND hDlg )
+BOOL CloseConnection(HWND hDlg)
 {
 	DWORD dwExCode;
-	
+
 	/* set the connection status (Disconnect) */
 	g_fConnected = FALSE;
 
-	TCPSockDisconnect( hDlg );
-	
+	TCPSockDisconnect(hDlg);
+
 	/* retrieves the termination status of the thread */
-	GetExitCodeThread( g_hTCPsockThread , &dwExCode );
+	GetExitCodeThread(g_hTCPsockThread, &dwExCode);
 	if (dwExCode == STILL_ACTIVE)
 	{
-		WaitForSingleObject( g_hTCPsockThread,INFINITE ); /* wait until the thread is over */
+		WaitForSingleObject(g_hTCPsockThread, INFINITE); /* wait until the thread is over */
 	}
 
-	if( g_pFile != NULL )
+	if (g_pFile != NULL)
 	{
 		/* close a file */
-		fclose( g_pFile );
+		fclose(g_pFile);
 		g_pFile = NULL;
 	}
 
 	/* change the control status */
-	EnableWindow( GetDlgItem( hDlg, IDC_CHANGE ), TRUE );
-	EnableWindow( GetDlgItem( hDlg, IDC_SELECT ), TRUE );
-	EnableWindow( GetDlgItem( hDlg, IDC_IPADDRESS ), TRUE );
-	EnableWindow( GetDlgItem( hDlg, IDC_PORTNUMBER ), TRUE );
-	EnableWindow( GetDlgItem( hDlg, IDC_CONNECT ), TRUE );
-	EnableWindow( GetDlgItem( hDlg, IDC_DISCONNECT ), FALSE );
+	EnableWindow(GetDlgItem(hDlg, IDC_CHANGE), TRUE);
+	EnableWindow(GetDlgItem(hDlg, IDC_SELECT), TRUE);
+	EnableWindow(GetDlgItem(hDlg, IDC_IPADDRESS), TRUE);
+	EnableWindow(GetDlgItem(hDlg, IDC_PORTNUMBER), TRUE);
+	EnableWindow(GetDlgItem(hDlg, IDC_CONNECT), TRUE);
+	EnableWindow(GetDlgItem(hDlg, IDC_DISCONNECT), FALSE);
 
 	/* stop the update timer for counter display */
-	KillTimer( hDlg , TM_COUNTER);
-	CounterDisplay( hDlg );
-	
+	KillTimer(hDlg, TM_COUNTER);
+	CounterDisplay(hDlg);
+
 	// 定期接続確認タイマーOFF
-	KillTimer( hDlg, TM_RECONECT);
+	KillTimer(hDlg, TM_RECONECT);
 
 	return TRUE;
 
@@ -397,26 +397,26 @@ BOOL CloseConnection( HWND hDlg )
 
 BOOL SaveFilesDlg(HWND hDlg)
 {
-    OPENFILENAME ofn;
-    memset( &ofn, 0, sizeof(OPENFILENAME) );
-    
-	ofn.lStructSize		= sizeof( OPENFILENAME );
-    ofn.hwndOwner		= hDlg;
-    ofn.lpstrFilter		= "*.txt";
-    ofn.lpstrFile		= g_FileName;
-    ofn.nMaxFile		= MAX_PATH;
-    ofn.Flags			= OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT| OFN_HIDEREADONLY;
-    ofn.lpstrDefExt		= "txt";
-    ofn.nMaxFileTitle	= 64;
+	OPENFILENAME ofn;
+	memset(&ofn, 0, sizeof(OPENFILENAME));
 
-	if( GetSaveFileName( &ofn ) == 0 ) 
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hDlg;
+	ofn.lpstrFilter = "*.txt";
+	ofn.lpstrFile = g_FileName;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
+	ofn.lpstrDefExt = "txt";
+	ofn.nMaxFileTitle = 64;
+
+	if (GetSaveFileName(&ofn) == 0)
 	{
 		return FALSE;
 	}
 	else
 	{
-        InvalidateRect( hDlg, NULL, TRUE );
-    }
+		InvalidateRect(hDlg, NULL, TRUE);
+	}
 
 	// フォルダパス取得
 	TCHAR cFldPath1[MAX_PATH];
@@ -428,11 +428,11 @@ BOOL SaveFilesDlg(HWND hDlg)
 	PathRemoveFileSpec(cFldPath2);
 
 	/* display save Folder path the on the textbox */
-	SetDlgItemText( hDlg,IDC_PATH, g_FileName);
-	
+	SetDlgItemText(hDlg, IDC_PATH, g_FileName);
+
 	/* enable connect button */
-	EnableWindow( GetDlgItem( hDlg, IDC_CONNECT ), TRUE );
-    
+	EnableWindow(GetDlgItem(hDlg, IDC_CONNECT), TRUE);
+
 	// 保存先フォルダ作成
 	// ビームの記録+生産レポート
 	TCHAR cBeamFldName[] = TEXT("/Report");
@@ -464,7 +464,7 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 	// ウインドウハンドラ取得
 	HWND hwndComb = GetDlgItem(hDlg, IDC_SELECT);
 
-	if( HIWORD(wParam) == CBN_DROPDOWN )
+	if (HIWORD(wParam) == CBN_DROPDOWN)
 	{
 		if (!g_fDropdown)
 		{
@@ -481,23 +481,23 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 		// 号機選択変更
 		// 号機を選択した時、IPアドレスとポートを自動で設定
 		GetDlgItemText(hDlg, IDC_SELECT, (LPTSTR)szUint, sizeof(szUint));
-		switch(SendMessage(hwndComb, CB_GETCURSEL, 0, 0 ))
+		switch (SendMessage(hwndComb, CB_GETCURSEL, 0, 0))
 		{
-			case 0:		// 1号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.21");
-				break;
-			case 1:		// 2号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.22");
-				break;
-			case 2:		// 5号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.25");
-				break;
-			case 3:		// 6号機
-				SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.26");
-				break;
-			default:
-				// none
-				break;
+		case 0:		// 1号機
+			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.21");
+			break;
+		case 1:		// 2号機
+			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.22");
+			break;
+		case 2:		// 5号機
+			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.25");
+			break;
+		case 3:		// 6号機
+			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.26");
+			break;
+		default:
+			// none
+			break;
 		}
 	}
 	else
@@ -646,9 +646,9 @@ BOOL SwitchFiles(HWND hDlg)
 	char cKeyWordRepo[] = "&%+%&%s%?";			// 生産レポートの識別子
 	char cKeyPaperSend[] = ",";					// 紙送り信号
 	char cKeyPattern[] = "&:n@.<T.:";			// パターンデータの識別子
-	char str[0xFF] = {0};						// 検索用
+	char str[0xFF] = { 0 };						// 検索用
 
-	// Categorize(生産レポート or ビームの記録 or パターンデータ or 紙送り信号)
+												// Categorize(生産レポート or ビームの記録 or パターンデータ or 紙送り信号)
 	errno_t err;
 	if (g_FileName != NULL)
 	{
@@ -753,7 +753,7 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	if (LOWORD(wParam) == TM_COUNTER)
 	{
 		// 受信データ数更新
-		CounterDisplay( hDlg );
+		CounterDisplay(hDlg);
 	}
 	// タイムアウト
 	else if (LOWORD(wParam) == TM_TIMEOUT)
@@ -809,7 +809,7 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 /* Process of WM_INITDIALOG message (Initialize dialog box)                 */
 /*--------------------------------------------------------------------------*/
 
-BOOL WmInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam )
+BOOL WmInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
 	HICON hIcon;
 
@@ -820,15 +820,15 @@ BOOL WmInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam )
 	SetDlgItemText(hDlg, IDC_PORTNUMBER, (LPCSTR)"10001");
 
 	/* disable connect and disconnect button */
-	EnableWindow( GetDlgItem( hDlg, IDC_CONNECT ), FALSE );
-	EnableWindow( GetDlgItem( hDlg, IDC_DISCONNECT ), FALSE );
+	EnableWindow(GetDlgItem(hDlg, IDC_CONNECT), FALSE);
+	EnableWindow(GetDlgItem(hDlg, IDC_DISCONNECT), FALSE);
 
 	/* Initialize global variable */
 	g_pFile = NULL;
 	g_hTCPsockThread = NULL;
 	g_fDropdown = FALSE;
 
-	SockInitialize( hDlg, g_wsaData );
+	SockInitialize(hDlg, g_wsaData);
 
 	// アイコンのセット
 	hIcon = (HICON)LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 16, 16, 0);
@@ -841,36 +841,36 @@ BOOL WmInitDialog( HWND hDlg, WPARAM wParam, LPARAM lParam )
 /* Process of WM_CLOSE message								                */
 /*--------------------------------------------------------------------------*/
 
-BOOL WmCloseMain( HWND hDlg )
-{	
-	if( g_fConnected )
+BOOL WmCloseMain(HWND hDlg)
+{
+	if (g_fConnected)
 	{
-		CloseConnection( hDlg );
+		CloseConnection(hDlg);
 	}
 
 	WSACleanup();
 
-    EndDialog( hDlg, 0 );
+	EndDialog(hDlg, 0);
 
-    return TRUE;
+	return TRUE;
 }
 
 /*--------------------------------------------------------------------------*/
 /* Process of WM_USER_MSG message							                */
 /*--------------------------------------------------------------------------*/
 
-BOOL WmUserMsg( HWND hDlg, WPARAM wParam, LPARAM lParam )
+BOOL WmUserMsg(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
-	switch( LOWORD( wParam ) )
+	switch (LOWORD(wParam))
 	{
 	case UMSG_WRITEWARNING:
-		MessageBox( hDlg, (LPCSTR)"Failed to write data.", (LPCSTR)"Error",MB_ICONEXCLAMATION | MB_OK);
-		SendMessage( hDlg, WM_COMMAND, LOWORD(IDC_DISCONNECT), 0 );
+		MessageBox(hDlg, (LPCSTR)"Failed to write data.", (LPCSTR)"Error", MB_ICONEXCLAMATION | MB_OK);
+		SendMessage(hDlg, WM_COMMAND, LOWORD(IDC_DISCONNECT), 0);
 		return TRUE;
 
 	case UMSG_RECEIVEWARNING:
-		MessageBox( hDlg, (LPCSTR)"Failed to receive data.", (LPCSTR)"Error",MB_ICONEXCLAMATION | MB_OK);
-		SendMessage( hDlg, WM_COMMAND, LOWORD(IDC_DISCONNECT), 0 );
+		MessageBox(hDlg, (LPCSTR)"Failed to receive data.", (LPCSTR)"Error", MB_ICONEXCLAMATION | MB_OK);
+		SendMessage(hDlg, WM_COMMAND, LOWORD(IDC_DISCONNECT), 0);
 		return TRUE;
 	}
 	return FALSE;
@@ -880,24 +880,24 @@ BOOL WmUserMsg( HWND hDlg, WPARAM wParam, LPARAM lParam )
 /* Process of WM_COMMAND message							                */
 /*--------------------------------------------------------------------------*/
 
-BOOL WmCommand( HWND hDlg, WPARAM wParam, LPARAM lParam )
-{	
-	switch( LOWORD( wParam ) )
+BOOL WmCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
+{
+	switch (LOWORD(wParam))
 	{
 	case IDC_CHANGE:
-		return SaveFilesDlg( hDlg );
+		return SaveFilesDlg(hDlg);
 
 	case IDC_SELECT:	// ドロップダウンリスト
 		return ChangeSelectUnit(hDlg, wParam);
 
 	case IDC_CONNECT:
-		return OpenConnection( hDlg );
+		return OpenConnection(hDlg);
 
 	case IDC_DISCONNECT:
-		return CloseConnection( hDlg );
-		
+		return CloseConnection(hDlg);
+
 	case IDC_EXIT:
-		return WmCloseMain( hDlg );
+		return WmCloseMain(hDlg);
 	}
 	return FALSE;
 }
@@ -906,39 +906,39 @@ BOOL WmCommand( HWND hDlg, WPARAM wParam, LPARAM lParam )
 /* Dialog box (main window) procedure                                       */
 /*--------------------------------------------------------------------------*/
 
-BOOL CALLBACK DlgProcMain( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+BOOL CALLBACK DlgProcMain(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch( uMsg )
-    {
+	switch (uMsg)
+	{
 	case WM_INITDIALOG:
-		return WmInitDialog( hDlg, wParam, lParam );
+		return WmInitDialog(hDlg, wParam, lParam);
 
-    case WM_COMMAND:
-        return WmCommand( hDlg, wParam, lParam );
+	case WM_COMMAND:
+		return WmCommand(hDlg, wParam, lParam);
 
-    case WM_CLOSE:
-        return WmCloseMain( hDlg );
+	case WM_CLOSE:
+		return WmCloseMain(hDlg);
 
 	case WM_TIMER:
-		return WmTimer( hDlg, wParam, lParam );
+		return WmTimer(hDlg, wParam, lParam);
 
 	case WM_USER_MSG:
-		return WmUserMsg( hDlg, wParam, lParam );
+		return WmUserMsg(hDlg, wParam, lParam);
 
-    }
+	}
 
-    return FALSE;
+	return FALSE;
 }
 
 /*--------------------------------------------------------------------------*/
 /* Application program entry                                                */
 /*--------------------------------------------------------------------------*/
 
-int CALLBACK WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int )
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
-    g_hInstance = hInstance;
+	g_hInstance = hInstance;
 
-    DialogBox( g_hInstance, MAKEINTRESOURCE( IDD_MAIN ), NULL, (DLGPROC)DlgProcMain );
- 
-    return 0;
+	DialogBox(g_hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, (DLGPROC)DlgProcMain);
+
+	return 0;
 }
