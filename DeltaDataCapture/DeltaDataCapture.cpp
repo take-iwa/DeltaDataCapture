@@ -28,22 +28,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-
 #include "DeltaDataCapture.h"
 #include "resource.h"
-
 #include <string.h>
 #include <direct.h>
 #include <process.h>
 #include <iostream>
 #include <time.h>
 #include <WinSock.h>
-
 #include <shlwapi.h>
+#include <mmsystem.h>
+
 #pragma comment(lib, "WSock32.lib")
-
 #pragma comment(lib, "shlwapi.lib")
-
+#pragma comment(lib,"Winmm.lib")
 /*--------------------------------------------------------------------------*/
 /* Global variable                                                          */
 /*--------------------------------------------------------------------------*/
@@ -124,8 +122,8 @@ unsigned __stdcall TCPsockThreadProc( LPVOID hDlg )
 	{
 		if (bOnTimer == false)
 		{
-			// 5秒間データが送られてこない場合、一旦接続断
-			SetTimer((HWND)hDlg, TM_TIMEOUT, 5000, NULL);
+			// 4秒間データが送られてこない場合、一旦接続断
+			SetTimer((HWND)hDlg, TM_TIMEOUT, 4000, NULL);
 			bOnTimer = true;
 		}
 
@@ -225,29 +223,37 @@ BOOL TCPSockConnect( HWND hDlg )
 		return FALSE;
 	}
 
-    /* set the IP address and the port number of the server. */
-	memset( g_sockaddr.sin_zero, 0, sizeof(g_sockaddr.sin_zero) );  /* initialize a structure */
-    g_sockaddr.sin_family		= AF_INET;                          /* Internet */
-    g_sockaddr.sin_addr.s_addr  = inet_addr(pIPaddr);				/* IP address */
-	g_sockaddr.sin_port			= htons(nPort);						/* Port number */
+	try {
+		/* set the IP address and the port number of the server. */
+		memset( g_sockaddr.sin_zero, 0, sizeof(g_sockaddr.sin_zero) );  /* initialize a structure */
+		g_sockaddr.sin_family		= AF_INET;                          /* Internet */
+		g_sockaddr.sin_addr.s_addr  = inet_addr(pIPaddr);				/* IP address */
+		g_sockaddr.sin_port			= htons(nPort);						/* Port number */
 	
 
-    g_sock = INVALID_SOCKET;
-	/* Create the TCP socket */
-    g_sock = socket( AF_INET, SOCK_STREAM, 0 );
-    if( g_sock == INVALID_SOCKET )
-	{
-		MessageBox( hDlg, "Failed to create socket!", "Error",MB_ICONEXCLAMATION );
-        return FALSE;
-    }
+		g_sock = INVALID_SOCKET;
+		/* Create the TCP socket */
+		g_sock = socket( AF_INET, SOCK_STREAM, 0 );
+		if( g_sock == INVALID_SOCKET )
+		{
+			MessageBox( hDlg, "Failed to create socket!", "Error",MB_ICONEXCLAMATION );
+			return FALSE;
+		}
 
-    /* establishes a connection to the TCP socket */
-    if( connect( g_sock, (LPSOCKADDR)&g_sockaddr, sizeof(g_sockaddr)) == SOCKET_ERROR )
+	    /* establishes a connection to the TCP socket */
+
+		if (connect(g_sock, (LPSOCKADDR)&g_sockaddr, sizeof(g_sockaddr)) == SOCKET_ERROR)
+		{
+			MessageBox(hDlg, "Connect failure", "Error", MB_ICONEXCLAMATION | MB_OK);
+			//TCPSockDisconnect(hDlg);
+			return FALSE;
+		}
+	}
+	catch (...)
 	{
-		MessageBox( hDlg, "Connect failure", "Error", MB_ICONEXCLAMATION | MB_OK);
-		TCPSockDisconnect( hDlg );
-		return FALSE;
-    }
+		throw;
+	}
+
 
     return TRUE;
 }
@@ -285,7 +291,7 @@ BOOL OpenConnection( HWND hDlg )
 	if (fResult)
 	{
 		// 定期接続確認
-		SetTimer((HWND)hDlg, TM_RECONECT, (15*60*1000), NULL);		// 1回/15分
+		SetTimer((HWND)hDlg, TM_RECONECT, (20*60*1000), NULL);		// 20min
 
 		/* set the connection status (Connect) */
 		g_fConnected = TRUE;
@@ -502,6 +508,130 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 	return TRUE;
 }
 
+
+/*--------------------------------------------------------------------------*/
+/* Identify Unit											                */
+/*--------------------------------------------------------------------------*/
+
+int IdentifyUnit(char str[])
+{
+	int unit = 0;
+
+
+
+	//1st unit
+	if (NULL != strstr(str, "1018"))
+	{
+		unit = 1;
+	}
+	//2nd unit
+	else if (NULL != strstr(str, "3862"))
+	{
+		unit = 2;
+	}
+	//5th unit
+	else if (NULL != strstr(str, "3541"))
+	{
+		unit = 5;
+	}
+	//6th unit
+	else if (NULL != strstr(str, "5200"))
+	{
+		unit = 6;
+	}
+	else
+	{
+		return 0;
+	}
+
+	return unit;
+}
+
+/*--------------------------------------------------------------------------*/
+/* Audio notification										                */
+/*--------------------------------------------------------------------------*/
+
+void AudioNotification(int type, int unit)
+{
+	// Beam Record
+	if (type == DP_DELTA_BEAM) {
+		switch (unit)
+		{
+		case 1:
+			PlaySound("delta_beam_1.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 2:
+			PlaySound("delta_beam_2.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 5:
+			PlaySound("delta_beam_5.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 6:
+			PlaySound("delta_beam_6.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		default:
+			PlaySound("delta_beam.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		}
+	}
+	// Day Report
+	else if (type == DP_DELTA_DAY) {
+		switch (unit)
+		{
+		case 1:
+			PlaySound("delta_day_1.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 2:
+			PlaySound("delta_day_2.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 5:
+			PlaySound("delta_day_5.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 6:
+			PlaySound("delta_day_6.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		default:
+			PlaySound("delta_day.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		}
+	}
+	// Pattern Data
+	else if (type == DP_DELTA_PTN) {
+		switch (unit)
+		{
+		case 1:
+			PlaySound("delta_Pattern_1.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 2:
+			PlaySound("delta_Pattern_2.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 5:
+			PlaySound("delta_Pattern_5.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		case 6:
+			PlaySound("delta_Pattern_6.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		default:
+			PlaySound("delta_Pattern.wav", NULL, SND_FILENAME | SND_ASYNC);
+			break;
+		}
+	}
+	// Fragment
+	else {
+		// none
+	}
+
+	return;
+}
+
+/*--------------------------------------------------------------------------*/
+/* Display notification on screen							                */
+/*--------------------------------------------------------------------------*/
+
+void DisplayNotification(int unit)
+{
+}
+
 /*--------------------------------------------------------------------------*/
 /* Categorize + Copy File									                */
 /*--------------------------------------------------------------------------*/
@@ -509,12 +639,13 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 BOOL SwitchFiles(HWND hDlg)
 {
 	int i = 0;
-	bool bIsBeamRec = false;
-	bool bIsDayRepo = false;
+	int unit = 0;
+	int dataType = 0;
 	char cKeyWordBeam[] = "&%`$N5-O?";			// ビームの記録の識別子
 	char cKeyWordBeam2[] = "&%S!<%`$N5-O?";		// ビームの記録の識別子２
 	char cKeyWordRepo[] = "&%+%&%s%?";			// 生産レポートの識別子
 	char cKeyPaperSend[] = ",";					// 紙送り信号
+	char cKeyPattern[] = "&:n@.<T.:";			// パターンデータの識別子
 	char str[0xFF] = {0};						// 検索用
 
 	// Categorize(生産レポート or ビームの記録 or パターンデータ or 紙送り信号)
@@ -531,22 +662,28 @@ BOOL SwitchFiles(HWND hDlg)
 		for (i; i < 10; i++)
 		{
 			fgets(str, sizeof(str), g_pFile);
-			//ビームの記録の識別子
-			if (NULL != strstr(str, cKeyWordBeam))
-			{
-				bIsBeamRec = true;
-				break;
+
+			//号機取得
+			if (unit == 0) {
+				unit = IdentifyUnit(str);
 			}
-			//ビームの記録の識別子２
-			else if (NULL != strstr(str, cKeyWordBeam2))
+
+			//ビームの記録の識別子
+			if (NULL != strstr(str, cKeyWordBeam) || NULL != strstr(str, cKeyWordBeam2))
 			{
-				bIsBeamRec = true;
+				dataType = DP_DELTA_BEAM;
 				break;
 			}
 			//生産レポートの識別子
 			else if (NULL != strstr(str, cKeyWordRepo))
 			{
-				bIsDayRepo = true;
+				dataType = DP_DELTA_DAY;
+				break;
+			}
+			//
+			else if (NULL != strstr(str, cKeyPattern))
+			{
+				dataType = DP_DELTA_PTN;
 				break;
 			}
 			//紙送り信号だけの場合、破棄
@@ -574,24 +711,31 @@ BOOL SwitchFiles(HWND hDlg)
 
 	// Copy
 	// ビームの記録と生産レポートは同じフォルダに保存
-	if (bIsBeamRec)
+	if (dataType == DP_DELTA_BEAM)
 	{
 		// ビームの記録
 		strftime((char*)datetime, 80, "\\Report\\BeamRecode_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sBeamFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sBeamFilePath, false);
 	}
-	else if (bIsDayRepo)
+	else if (dataType == DP_DELTA_DAY)
 	{
 		// 生産レポート
 		strftime((char*)datetime, 80, "\\Report\\DayReport_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sDayRepFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sDayRepFilePath, false);
 	}
+	else if (dataType == DP_DELTA_PTN)
+	{
+		// 引っ込み図
+		strftime((char*)datetime, 80, "\\etc\\PatternData_%Y-%m-%d-%H%M%S.txt", tm);
+		LPWSTR sPtnDtFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
+		CopyFile(g_FileName, (LPCSTR)sPtnDtFilePath, false);
+	}
 	else
 	{
-		// 引っ込み図など
-		strftime((char*)datetime, 80, "\\etc\\PatternData_%Y-%m-%d-%H%M%S.txt", tm);
+		// 途切れたデータ等
+		strftime((char*)datetime, 80, "\\etc\\Fragment_%Y-%m-%d-%H%M%S.txt", tm);
 		LPWSTR sPtnDtFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sPtnDtFilePath, false);
 	}
@@ -629,15 +773,15 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 				// 一旦接続断
 				CloseConnection(hDlg);
 
-				// できなければ１秒ごとにリトライ
-				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
+				// できなければ2秒ごとにリトライ
+				SetTimer((HWND)hDlg, TM_TIMEOUT, 2000, NULL);
 			}
 		}
 		// データ受信終了
 		else
 		{
-			// タイムアウトタイマー再設定　5秒間データが送られてこない場合、一旦接続断
-			SetTimer((HWND)hDlg, TM_TIMEOUT, 5000, NULL);
+			// タイムアウトタイマー再設定　4秒間データが送られてこない場合、一旦接続断
+			SetTimer((HWND)hDlg, TM_TIMEOUT, 4000, NULL);
 		}
 	}
 	else // TM_RECONECT 定期接続確認
@@ -794,7 +938,7 @@ int CALLBACK WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int )
 {
     g_hInstance = hInstance;
 
-    DialogBox( g_hInstance, MAKEINTRESOURCE( IDD_MAIN ), NULL, DlgProcMain );
+    DialogBox( g_hInstance, MAKEINTRESOURCE( IDD_MAIN ), NULL, (DLGPROC)DlgProcMain );
  
     return 0;
 }
