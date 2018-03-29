@@ -34,6 +34,8 @@
 #include <direct.h>
 #include <process.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <time.h>
 #include <WinSock.h>
 #include <shlwapi.h>
@@ -42,6 +44,9 @@
 #pragma comment(lib, "WSock32.lib")
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib,"Winmm.lib")
+
+#include "../wintoastlib.h"
+using namespace WinToastLib;
 /*--------------------------------------------------------------------------*/
 /* Global variable                                                          */
 /*--------------------------------------------------------------------------*/
@@ -122,8 +127,8 @@ unsigned __stdcall TCPsockThreadProc(LPVOID hDlg)
 	{
 		if (bOnTimer == false)
 		{
-			// 4秒間データが送られてこない場合、一旦接続断
-			SetTimer((HWND)hDlg, TM_TIMEOUT, 4000, NULL);
+			// 6秒間データが送られてこない場合、一旦接続断
+			SetTimer((HWND)hDlg, TM_TIMEOUT, 6000, NULL);
 			bOnTimer = true;
 		}
 
@@ -327,8 +332,8 @@ BOOL OpenConnection(HWND hDlg)
 			/* clear the display counter */
 			g_dwCounter = 0;
 			CounterDisplay(hDlg);
-			/* start the update timer for counter display (0.5s intervals) */
-			SetTimer(hDlg, TM_COUNTER, 500, NULL);
+			/* start the update timer for counter display (0.25s intervals) */
+			SetTimer(hDlg, TM_COUNTER, 250, NULL);
 		}
 	}
 	else
@@ -517,8 +522,6 @@ int IdentifyUnit(char str[])
 {
 	int unit = 0;
 
-
-
 	//1st unit
 	if (NULL != strstr(str, "1018"))
 	{
@@ -558,19 +561,19 @@ void AudioNotification(int type, int unit)
 		switch (unit)
 		{
 		case 1:
-			PlaySound("delta_beam_1.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_beam_1.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 2:
-			PlaySound("delta_beam_2.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_beam_2.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 5:
-			PlaySound("delta_beam_5.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("/audio/delta_beam_5.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 6:
-			PlaySound("delta_beam_6.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_beam_6.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		default:
-			PlaySound("delta_beam.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_beam.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		}
 	}
@@ -579,19 +582,19 @@ void AudioNotification(int type, int unit)
 		switch (unit)
 		{
 		case 1:
-			PlaySound("delta_day_1.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_day_1.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 2:
-			PlaySound("delta_day_2.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_day_2.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 5:
-			PlaySound("delta_day_5.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_day_5.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 6:
-			PlaySound("delta_day_6.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_day_6.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		default:
-			PlaySound("delta_day.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_day.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		}
 	}
@@ -600,19 +603,19 @@ void AudioNotification(int type, int unit)
 		switch (unit)
 		{
 		case 1:
-			PlaySound("delta_Pattern_1.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_Pattern_1.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 2:
-			PlaySound("delta_Pattern_2.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_Pattern_2.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 5:
-			PlaySound("delta_Pattern_5.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_Pattern_5.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		case 6:
-			PlaySound("delta_Pattern_6.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_Pattern_6.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		default:
-			PlaySound("delta_Pattern.wav", NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound("./audio/delta_Pattern.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		}
 	}
@@ -630,6 +633,15 @@ void AudioNotification(int type, int unit)
 
 void DisplayNotification(int unit)
 {
+	//WinToastHandlerExample* handler = new WinToastHandlerExample;
+	//WinToastTemplate templ = WinToastTemplate(WinToastTemplate::ImageWithTwoLines);
+	//templ.setImagePath(L"imagepath");
+	//templ.setTextField(L"firstline", 0);
+	//templ.setTextField(L"secondline", 1);
+	//
+	//if (!WinToast::instance()->showToast(templ, handler)) {
+	//	std::wcout << L"Could not launch your toast notification!";
+	//}
 }
 
 /*--------------------------------------------------------------------------*/
@@ -648,7 +660,7 @@ BOOL SwitchFiles(HWND hDlg)
 	char cKeyPattern[] = "&:n@.<T.:";			// パターンデータの識別子
 	char str[0xFF] = { 0 };						// 検索用
 
-												// Categorize(生産レポート or ビームの記録 or パターンデータ or 紙送り信号)
+	// Categorize(生産レポート or ビームの記録 or パターンデータ or 紙送り信号)
 	errno_t err;
 	if (g_FileName != NULL)
 	{
@@ -680,7 +692,7 @@ BOOL SwitchFiles(HWND hDlg)
 				dataType = DP_DELTA_DAY;
 				break;
 			}
-			//
+			//パターンデータの識別子
 			else if (NULL != strstr(str, cKeyPattern))
 			{
 				dataType = DP_DELTA_PTN;
@@ -708,6 +720,9 @@ BOOL SwitchFiles(HWND hDlg)
 	// フォルダパス取得
 	strncpy_s(g_FldPath, sizeof(g_FldPath), g_FileName, _TRUNCATE);
 	PathRemoveFileSpec(g_FldPath);
+
+	// Notification
+	AudioNotification(dataType, unit);
 
 	// Copy
 	// ビームの記録と生産レポートは同じフォルダに保存
@@ -773,15 +788,15 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 				// 一旦接続断
 				CloseConnection(hDlg);
 
-				// できなければ2秒ごとにリトライ
-				SetTimer((HWND)hDlg, TM_TIMEOUT, 2000, NULL);
+				// できなければ1秒ごとにリトライ
+				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
 			}
 		}
 		// データ受信終了
 		else
 		{
-			// タイムアウトタイマー再設定　4秒間データが送られてこない場合、一旦接続断
-			SetTimer((HWND)hDlg, TM_TIMEOUT, 4000, NULL);
+			// タイムアウトタイマー再設定　6秒間データが送られてこない場合、一旦接続断
+			SetTimer((HWND)hDlg, TM_TIMEOUT, 6000, NULL);
 		}
 	}
 	else // TM_RECONECT 定期接続確認
@@ -833,7 +848,7 @@ BOOL WmInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	// アイコンのセット
 	hIcon = (HICON)LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 16, 16, 0);
 	SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-
+	
 	return TRUE;
 }
 
@@ -937,6 +952,17 @@ BOOL CALLBACK DlgProcMain(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
 	g_hInstance = hInstance;
+
+	if (!WinToast::isCompatible()) {
+		std::wcout << L"Error, your system in not supported!" << std::endl;
+	}
+	WinToast::instance()->setAppName(L"WinToastExample");
+	const auto aumi = WinToast::configureAUMI(L"mohabouje", L"wintoast", L"wintoastexample", L"20161006");
+	WinToast::instance()->setAppUserModelId(aumi);
+
+	if (!WinToast::instance()->initialize()) {
+		std::wcout << L"Error, could not initialize the lib!" << std::endl;
+	}
 
 	DialogBox(g_hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, (DLGPROC)DlgProcMain);
 

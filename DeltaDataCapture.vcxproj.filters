@@ -21,6 +21,9 @@
     <ClCompile Include="deltadatacapture\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wintoastlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deltadatacapture\DeltaDataCapture.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="deltadatacapture\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wintoastlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

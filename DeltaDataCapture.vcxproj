@@ -103,12 +103,14 @@
   <ItemGroup>
     <ClCompile Include="deltadatacapture\DeltaDataCapture.cpp" />
     <ClCompile Include="deltadatacapture\stdafx.cpp" />
+    <ClCompile Include="wintoastlib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deltadatacapture\DeltaDataCapture.h" />
     <ClInclude Include="deltadatacapture\Resource.h" />
     <ClInclude Include="deltadatacapture\stdafx.h" />
     <ClInclude Include="deltadatacapture\targetver.h" />
+    <ClInclude Include="wintoastlib.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="deltadatacapture\resource.rc" />
