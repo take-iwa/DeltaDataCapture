@@ -34,8 +34,6 @@
 #include <direct.h>
 #include <process.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <time.h>
 #include <WinSock.h>
 #include <shlwapi.h>
@@ -44,9 +42,6 @@
 #pragma comment(lib, "WSock32.lib")
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib,"Winmm.lib")
-
-#include "../wintoastlib.h"
-using namespace WinToastLib;
 /*--------------------------------------------------------------------------*/
 /* Global variable                                                          */
 /*--------------------------------------------------------------------------*/
@@ -134,6 +129,7 @@ unsigned __stdcall TCPsockThreadProc(LPVOID hDlg)
 
 		if (0 != (nLength = ReadTCPSockData(g_sock, Buff, sizeof(Buff))))
 		{
+			KillTimer((HWND)hDlg, TM_RECONECT);
 			if (!WriteData(Buff, (DWORD)nLength))
 			{
 				PostMessage((HWND)hDlg, WM_USER_MSG, LOWORD(UMSG_WRITEWARNING), 0);
@@ -194,9 +190,12 @@ BOOL SockInitialize(HWND hDlg, WSADATA wsaData)
 
 BOOL TCPSockDisconnect(HWND hDlg)
 {
-	shutdown(g_sock, 2);		/* disables sends or receives on a socket */
-	closesocket(g_sock);		/* closes an existing socket */
-	g_sock = INVALID_SOCKET;
+	if (g_sock != INVALID_SOCKET)
+	{
+		shutdown(g_sock, 2);		/* disables sends or receives on a socket */
+		closesocket(g_sock);		/* closes an existing socket */
+		g_sock = INVALID_SOCKET;
+	}
 	return TRUE;
 }
 
@@ -249,13 +248,17 @@ BOOL TCPSockConnect(HWND hDlg)
 
 		if (connect(g_sock, (LPSOCKADDR)&g_sockaddr, sizeof(g_sockaddr)) == SOCKET_ERROR)
 		{
-			MessageBox(hDlg, "Connect failure", "Error", MB_ICONEXCLAMATION | MB_OK);
-			//TCPSockDisconnect(hDlg);
+			//MessageBox(hDlg, "Connect failure", "Error", MB_ICONEXCLAMATION | MB_OK);
+			TCPSockDisconnect(hDlg);
+
+			//Try reconnecting(Every 10 seconds)
+			SetTimer((HWND)hDlg, TM_RECONECT, 10000, NULL);
 			return FALSE;
 		}
 	}
 	catch (...)
 	{
+		MessageBox(hDlg, "Connect Error", "Error", MB_ICONEXCLAMATION | MB_OK);
 		throw;
 	}
 
@@ -298,7 +301,7 @@ BOOL OpenConnection(HWND hDlg)
 		// 定期接続確認
 		SetTimer((HWND)hDlg, TM_RECONECT, (20 * 60 * 1000), NULL);		// 20min
 
-																		/* set the connection status (Connect) */
+		/* set the connection status (Connect) */
 		g_fConnected = TRUE;
 
 		/* create a secondary thread */
@@ -309,12 +312,12 @@ BOOL OpenConnection(HWND hDlg)
 			0,
 			&ThreadID)))
 		{
-			/* set the connection status (Disconnect) */
-			g_fConnected = FALSE;
-
 			/* close a file */
 			fclose(g_pFile);
 			g_pFile = NULL;
+
+			/* set the connection status (Disconnect) */
+			g_fConnected = FALSE;
 
 			fResult = FALSE;
 		}
@@ -342,8 +345,10 @@ BOOL OpenConnection(HWND hDlg)
 		g_fConnected = FALSE;
 
 		/* close a file */
-		fclose(g_pFile);
-		g_pFile = NULL;
+		if (g_pFile != NULL) {
+			fclose(g_pFile);
+			g_pFile = NULL;
+		}
 	}
 
 	return fResult;
@@ -600,24 +605,7 @@ void AudioNotification(int type, int unit)
 	}
 	// Pattern Data
 	else if (type == DP_DELTA_PTN) {
-		switch (unit)
-		{
-		case 1:
-			PlaySound("./audio/delta_Pattern_1.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		case 2:
-			PlaySound("./audio/delta_Pattern_2.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		case 5:
-			PlaySound("./audio/delta_Pattern_5.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		case 6:
-			PlaySound("./audio/delta_Pattern_6.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		default:
-			PlaySound("./audio/delta_Pattern.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		}
+		PlaySound("./audio/delta_Pattern.wav", NULL, SND_FILENAME | SND_ASYNC);
 	}
 	// Fragment
 	else {
@@ -633,15 +621,7 @@ void AudioNotification(int type, int unit)
 
 void DisplayNotification(int unit)
 {
-	//WinToastHandlerExample* handler = new WinToastHandlerExample;
-	//WinToastTemplate templ = WinToastTemplate(WinToastTemplate::ImageWithTwoLines);
-	//templ.setImagePath(L"imagepath");
-	//templ.setTextField(L"firstline", 0);
-	//templ.setTextField(L"secondline", 1);
-	//
-	//if (!WinToast::instance()->showToast(templ, handler)) {
-	//	std::wcout << L"Could not launch your toast notification!";
-	//}
+
 }
 
 /*--------------------------------------------------------------------------*/
@@ -764,13 +744,13 @@ BOOL SwitchFiles(HWND hDlg)
 
 BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
-	// データ受信
+	// データ受信サイズ数表示
 	if (LOWORD(wParam) == TM_COUNTER)
 	{
 		// 受信データ数更新
 		CounterDisplay(hDlg);
 	}
-	// タイムアウト
+	// データ受信タイムアウト
 	else if (LOWORD(wParam) == TM_TIMEOUT)
 	{
 		// データ受信していた場合
@@ -799,7 +779,8 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 			SetTimer((HWND)hDlg, TM_TIMEOUT, 6000, NULL);
 		}
 	}
-	else // TM_RECONECT 定期接続確認
+	// TM_RECONECT
+	else if (LOWORD(wParam) == TM_RECONECT)
 	{
 		if ((g_fConnected == TRUE) && (g_dwCounter == 0))
 		{
@@ -812,11 +793,28 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 				// 一旦接続断
 				CloseConnection(hDlg);
 
-				// できなければ１秒ごとにリトライ
-				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
+				// できなければ１0秒ごとにリトライ
+				SetTimer((HWND)hDlg, TM_RECONECT, 10000, NULL);
+			}
+		}
+		else
+		{
+			// 再接続
+			if (!OpenConnection(hDlg)) {
+
+				// 一旦接続断
+				CloseConnection(hDlg);
+
+				// できなければ１0秒ごとにリトライ
+				SetTimer((HWND)hDlg, TM_RECONECT, 10000, NULL);
 			}
 		}
 	}
+	else
+	{
+		//none
+	}
+
 	return TRUE;
 }
 
@@ -952,18 +950,7 @@ BOOL CALLBACK DlgProcMain(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
 	g_hInstance = hInstance;
-
-	if (!WinToast::isCompatible()) {
-		std::wcout << L"Error, your system in not supported!" << std::endl;
-	}
-	WinToast::instance()->setAppName(L"WinToastExample");
-	const auto aumi = WinToast::configureAUMI(L"mohabouje", L"wintoast", L"wintoastexample", L"20161006");
-	WinToast::instance()->setAppUserModelId(aumi);
-
-	if (!WinToast::instance()->initialize()) {
-		std::wcout << L"Error, could not initialize the lib!" << std::endl;
-	}
-
+	
 	DialogBox(g_hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, (DLGPROC)DlgProcMain);
 
 	return 0;
