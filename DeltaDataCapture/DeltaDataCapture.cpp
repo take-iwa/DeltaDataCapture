@@ -2,6 +2,7 @@
 /*== DeltaDataCaptute.cpp												==*/
 /*==  Author:Hirofumi Ooiwa												==*/
 /*==  Date:2017.2/22	初稿												==*/
+/*==  Date:2025/9/18	良川SG向け										==*/
 /*========================================================================*/
 /*== <内容>																==*/
 /*== SI-40LA2に接続し、予め指定したファイルに受信データを書込みます。			==*/
@@ -259,7 +260,7 @@ BOOL TCPSockConnect(HWND hDlg)
 	catch (...)
 	{
 		MessageBox(hDlg, "Connect Error", "Error", MB_ICONEXCLAMATION | MB_OK);
-		throw;
+		return FALSE;
 	}
 
 
@@ -361,23 +362,24 @@ BOOL OpenConnection(HWND hDlg)
 
 BOOL CloseConnection(HWND hDlg)
 {
-	DWORD dwExCode;
-
 	/* set the connection status (Disconnect) */
 	g_fConnected = FALSE;
 
 	TCPSockDisconnect(hDlg);
 
-	/* retrieves the termination status of the thread */
-	GetExitCodeThread(g_hTCPsockThread, &dwExCode);
-	if (dwExCode == STILL_ACTIVE)
-	{
-		WaitForSingleObject(g_hTCPsockThread, INFINITE); /* wait until the thread is over */
+	if (g_hTCPsockThread != NULL) {
+		DWORD dwExCode;
+		GetExitCodeThread(g_hTCPsockThread, &dwExCode);
+		if (dwExCode == STILL_ACTIVE) {
+			WaitForSingleObject(g_hTCPsockThread, INFINITE);
+		}
+		CloseHandle(g_hTCPsockThread);
+		g_hTCPsockThread = NULL;
 	}
 
+	/* close a file */
 	if (g_pFile != NULL)
 	{
-		/* close a file */
 		fclose(g_pFile);
 		g_pFile = NULL;
 	}
@@ -479,10 +481,8 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 		if (!g_fDropdown)
 		{
 			// 表示するリスト
-			SendMessage(hwndComb, CB_INSERTSTRING, 0, (LPARAM)"1号機");
-			SendMessage(hwndComb, CB_INSERTSTRING, 1, (LPARAM)"2号機");
-			SendMessage(hwndComb, CB_INSERTSTRING, 2, (LPARAM)"5号機");
-			SendMessage(hwndComb, CB_INSERTSTRING, 3, (LPARAM)"6号機");
+			SendMessage(hwndComb, CB_INSERTSTRING, 0, (LPARAM)"Y1号機");
+			SendMessage(hwndComb, CB_INSERTSTRING, 1, (LPARAM)"Y2号機");
 			g_fDropdown = TRUE;
 		}
 	}
@@ -493,17 +493,11 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 		GetDlgItemText(hDlg, IDC_SELECT, (LPTSTR)szUint, sizeof(szUint));
 		switch (SendMessage(hwndComb, CB_GETCURSEL, 0, 0))
 		{
-		case 0:		// 1号機
-			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.21");
+		case 0:		// Y1号機
+			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.155.8");
 			break;
-		case 1:		// 2号機
-			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.22");
-			break;
-		case 2:		// 5号機
-			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.25");
-			break;
-		case 3:		// 6号機
-			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.26");
+		case 1:		// Y2号機
+			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.155.9");
 			break;
 		default:
 			// none
@@ -528,24 +522,14 @@ int IdentifyUnit(char str[])
 	int unit = 0;
 
 	//1st unit
-	if (NULL != strstr(str, "1018"))
+	if (NULL != strstr(str, "2063"))
 	{
-		unit = 1;
+		unit = 7;
 	}
 	//2nd unit
-	else if (NULL != strstr(str, "3862"))
-	{
-		unit = 2;
-	}
-	//5th unit
 	else if (NULL != strstr(str, "3541"))
 	{
-		unit = 5;
-	}
-	//6th unit
-	else if (NULL != strstr(str, "5200"))
-	{
-		unit = 6;
+		unit = 8;
 	}
 	else
 	{
@@ -571,12 +555,6 @@ void AudioNotification(int type, int unit)
 		case 2:
 			PlaySound("./audio/delta_beam_2.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
-		case 5:
-			PlaySound("/audio/delta_beam_5.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		case 6:
-			PlaySound("./audio/delta_beam_6.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
 		default:
 			PlaySound("./audio/delta_beam.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
@@ -591,12 +569,6 @@ void AudioNotification(int type, int unit)
 			break;
 		case 2:
 			PlaySound("./audio/delta_day_2.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		case 5:
-			PlaySound("./audio/delta_day_5.wav", NULL, SND_FILENAME | SND_ASYNC);
-			break;
-		case 6:
-			PlaySound("./audio/delta_day_6.wav", NULL, SND_FILENAME | SND_ASYNC);
 			break;
 		default:
 			PlaySound("./audio/delta_day.wav", NULL, SND_FILENAME | SND_ASYNC);
@@ -825,11 +797,13 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 BOOL WmInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
 	HICON hIcon;
+	// ★ダイアログのタイトルを設定
+	SetWindowText(hDlg, TEXT("DeltaDataCapture(良川SG)"));
 
 	// 初期値設定
-	SetDlgItemText(hDlg, IDC_PATH, (LPCSTR)"C:\\Users");
-	SetDlgItemText(hDlg, IDC_SELECT, (LPCSTR)"1号機");
-	SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.122.21");
+	SetDlgItemText(hDlg, IDC_PATH, (LPCSTR)"C:\\");
+	SetDlgItemText(hDlg, IDC_SELECT, (LPCSTR)"Y1号機");
+	SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.155.8");
 	SetDlgItemText(hDlg, IDC_PORTNUMBER, (LPCSTR)"10001");
 
 	/* disable connect and disconnect button */
