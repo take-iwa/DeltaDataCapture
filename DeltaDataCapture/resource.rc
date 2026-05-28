@@ -1,4 +1,4 @@
-// Microsoft Visual C++ generated resource script.
+Ôªø// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -13,11 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ì˙ñ{åÍ (ì˙ñ{) resources
+// Êó•Êú¨Ë™û (Êó•Êú¨) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
-#pragma code_page(932)
+#pragma code_page(65001)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -55,20 +55,19 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_S
 CAPTION "Delta Data Capture"
 FONT 9, "Meiryo UI", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "èIóπ",IDC_EXIT,189,139,50,14
-    EDITTEXT        IDC_PATH,14,26,181,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "éQè∆",IDC_CHANGE,196,26,30,13
-    PUSHBUTTON      "ê⁄ë±",IDC_CONNECT,25,139,50,14
+    PUSHBUTTON      "ÁµÇ‰∫Ü",IDC_EXIT,189,139,50,14
+    EDITTEXT        IDC_PATH,14,26,211,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Êé•Á∂ö",IDC_CONNECT,25,139,50,14
     EDITTEXT        IDC_IPADDRESS,50,84,67,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_PORTNUMBER,50,106,50,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_COUNTER,147,62,79,15,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "êÿíf",IDC_DISCONNECT,97,139,54,14
-    GROUPBOX        "ÉfÅ[É^ï€ë∂êÊ",IDC_STATIC,8,10,225,38
-    GROUPBOX        "ê⁄ë±êÊê›íË",IDC_STATIC,8,53,125,75
-    GROUPBOX        "éÛêMÉfÅ[É^",IDC_STATIC,140,52,93,60
-    LTEXT           "IP ÉAÉhÉåÉX:",IDC_STATIC,14,85,36,11
-    LTEXT           "É|Å[Ég:",IDCANCEL,14,108,31,8
-    LTEXT           "çÜã@ëIë:",IDC_STATIC,14,64,36,11
+    PUSHBUTTON      "ÂàáÊñ≠",IDC_DISCONNECT,97,139,54,14
+    GROUPBOX        "„Éá„Éº„Çø‰øùÂ≠òÂÖà",IDC_STATIC,8,10,225,38
+    GROUPBOX        "Êé•Á∂öÂÖàË®≠ÂÆö",IDC_STATIC,8,53,125,75
+    GROUPBOX        "Âèó‰ø°„Éá„Éº„Çø",IDC_STATIC,140,52,93,60
+    LTEXT           "IP „Ç¢„Éâ„É¨„Çπ:",IDC_STATIC,14,85,36,11
+    LTEXT           "„Éù„Éº„Éà:",IDCANCEL,14,108,31,8
+    LTEXT           "Âè∑Ê©üÈÅ∏Êäû:",IDC_STATIC,14,64,36,11
     COMBOBOX        IDC_SELECT,50,63,49,55,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
@@ -125,7 +124,7 @@ END
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "icon\\printer.ico"
 
-#endif    // ì˙ñ{åÍ (ì˙ñ{) resources
+#endif    // Êó•Êú¨Ë™û (Êó•Êú¨) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

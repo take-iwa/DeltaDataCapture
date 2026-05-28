@@ -1,4 +1,4 @@
-#if !defined( DELTADATACAPTURE__H )
+﻿#if !defined( DELTADATACAPTURE__H )
 #define DELTADATACAPTURE__H
 
 #define WM_USER_MSG			(WM_APP + 1)

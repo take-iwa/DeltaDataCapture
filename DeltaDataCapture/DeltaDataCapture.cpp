@@ -1,29 +1,29 @@
-/*========================================================================*/
+ï»¿/*========================================================================*/
 /*== DeltaDataCaptute.cpp												==*/
 /*==  Author:Hirofumi Ooiwa												==*/
-/*==  Date:2017.2/22	‰e												==*/
-/*==  Date:2025/9/18	—ÇìSGŒü‚¯										==*/
+/*==  Date:2017.2/22	åˆç¨¿												==*/
+/*==  Date:2025/9/18	è‰¯å·SGå‘ã‘										==*/
 /*========================================================================*/
-/*== <“à—e>																==*/
-/*== SI-40LA2‚ÉÚ‘±‚µA—\‚ßw’è‚µ‚½ƒtƒ@ƒCƒ‹‚ÉóMƒf[ƒ^‚ğ‘‚İ‚Ü‚·B			==*/
-/*== ‘ÎÛƒtƒ@ƒCƒ‹‚ª‚ ‚é‚Æ“¯‚¶ƒtƒHƒ‹ƒ_‚Éƒr[ƒ€‚Ì‹L˜^A¶YƒŒƒ|[ƒgA				==*/
-/*== ƒpƒ^[ƒ“ƒf[ƒ^‚»‚ê‚¼‚ê‚ğ•Û‘¶‚·‚éƒtƒHƒ‹ƒ_‚ğì¬‚µ‚Ü‚·B						==*/
-/*== ƒf[ƒ^‚ª‘—‚ç‚ê‚é‚Æw’èŠÔˆÈã’ÊM‚ª“rØ‚ê‚é‚Ü‚Å							==*/
-/*== “¯ˆêƒtƒ@ƒCƒ‹‚É•Û‘¶‚µ‚Ü‚·B												==*/
-/*== <‘€ìè‡>															==*/
-/*== 1.[QÆ]‚ğƒNƒŠƒbƒN‚µA•Û‘¶æƒtƒ@ƒCƒ‹‚ğw’è‚µ‚Ü‚·B		     			==*/
-/*== @‚±‚Ìƒtƒ@ƒCƒ‹‚Ítxtƒtƒ@ƒCƒ‹‚ğw’è‚·‚éB				     				==*/
-/*== 2.Ú‘±‚·‚é†‹@‚ğ‘I‘ğ‚µ‚Ü‚·B											==*/
-/*== @IPƒAƒhƒŒƒX‚Í©“®‚ÅØ‚è‘Ö‚í‚èAƒ|[ƒg‚ÍŒÅ’è‚Å‚·B						==*/
-/*== 3.[Ú‘±]‚ğƒNƒŠƒbƒN‚µASI-40LA2‚ÉÚ‘±‚µ‚Ü‚·B							==*/
-/*== 4.SI-40LA2‚©‚ç‚Ìƒf[ƒ^‚ğóM‚·‚é‚Æw’è‚µ‚½ƒtƒ@ƒCƒ‹‚É‘‚Ü‚ê				==*/
-/*==   ƒJƒEƒ“ƒ^[‚ÉóMƒoƒCƒg”‚ª•\¦‚³‚ê‚Ü‚·B								==*/
-/*==   óM‚ªI—¹‚µw’èŠÔˆÈã’ÊM‚ª“râ‚¦‚é‚Æ•Û‘¶ƒtƒ@ƒCƒ‹‚ğØ‘Ö‚¦‚Ü‚·			==*/
-/*==   ‘ÎÛƒtƒHƒ‹ƒ_‚Étxtƒtƒ@ƒCƒ‹‚ª‚Å‚«‚Ü‚·‚Ì‚Å‚¨‚¿‚ÌƒeƒLƒXƒgƒGƒfƒBƒ^‚Å			==*/
-/*==   Šm”F‚µ‚Ä‚­‚¾‚³‚¢B													==*/
-/*== 5.[Ø’f]‚ğƒNƒŠƒbƒN‚µASI-40LA2‚ÆØ’f‚µ‚Ü‚·B							==*/
-/*== <’ˆÓ>																==*/
-/*== 	ƒ†ƒjƒbƒg‚Æ‚Ì’ÊM‚Í“¯ŠúŒ^‚Å‚·B										==*/
+/*== <å†…å®¹>																==*/
+/*== SI-40LA2ã«æ¥ç¶šã—ã€äºˆã‚æŒ‡å®šã—ãŸãƒ•ã‚¡ã‚¤ãƒ«ã«å—ä¿¡ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸è¾¼ã¿ã¾ã™ã€‚			==*/
+/*== å¯¾è±¡ãƒ•ã‚¡ã‚¤ãƒ«ãŒã‚ã‚‹ã¨åŒã˜ãƒ•ã‚©ãƒ«ãƒ€ã«ãƒ“ãƒ¼ãƒ ã®è¨˜éŒ²ã€ç”Ÿç”£ãƒ¬ãƒãƒ¼ãƒˆã€				==*/
+/*== ãƒ‘ã‚¿ãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿ãã‚Œãã‚Œã‚’ä¿å­˜ã™ã‚‹ãƒ•ã‚©ãƒ«ãƒ€ã‚’ä½œæˆã—ã¾ã™ã€‚						==*/
+/*== ãƒ‡ãƒ¼ã‚¿ãŒé€ã‚‰ã‚Œã‚‹ã¨æŒ‡å®šæ™‚é–“ä»¥ä¸Šé€šä¿¡ãŒé€”åˆ‡ã‚Œã‚‹ã¾ã§							==*/
+/*== åŒä¸€ãƒ•ã‚¡ã‚¤ãƒ«ã«ä¿å­˜ã—ã¾ã™ã€‚												==*/
+/*== <æ“ä½œæ‰‹é †>															==*/
+/*== 1.[å‚ç…§]ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã€ä¿å­˜å…ˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’æŒ‡å®šã—ã¾ã™ã€‚		     			==*/
+/*== ã€€ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ã¯txtãƒ•ã‚¡ã‚¤ãƒ«ã‚’æŒ‡å®šã™ã‚‹ã€‚				     				==*/
+/*== 2.æ¥ç¶šã™ã‚‹å·æ©Ÿã‚’é¸æŠã—ã¾ã™ã€‚											==*/
+/*== ã€€IPã‚¢ãƒ‰ãƒ¬ã‚¹ã¯è‡ªå‹•ã§åˆ‡ã‚Šæ›¿ã‚ã‚Šã€ãƒãƒ¼ãƒˆã¯å›ºå®šã§ã™ã€‚						==*/
+/*== 3.[æ¥ç¶š]ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã€SI-40LA2ã«æ¥ç¶šã—ã¾ã™ã€‚							==*/
+/*== 4.SI-40LA2ã‹ã‚‰ã®ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã™ã‚‹ã¨æŒ‡å®šã—ãŸãƒ•ã‚¡ã‚¤ãƒ«ã«æ›¸è¾¼ã¾ã‚Œ				==*/
+/*==   ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼ã«å—ä¿¡ãƒã‚¤ãƒˆæ•°ãŒè¡¨ç¤ºã•ã‚Œã¾ã™ã€‚								==*/
+/*==   å—ä¿¡ãŒçµ‚äº†ã—æŒ‡å®šæ™‚é–“ä»¥ä¸Šé€šä¿¡ãŒé€”çµ¶ãˆã‚‹ã¨ä¿å­˜ãƒ•ã‚¡ã‚¤ãƒ«ã‚’åˆ‡æ›¿ãˆã¾ã™			==*/
+/*==   å¯¾è±¡ãƒ•ã‚©ãƒ«ãƒ€ã«txtãƒ•ã‚¡ã‚¤ãƒ«ãŒã§ãã¾ã™ã®ã§ãŠæŒã¡ã®ãƒ†ã‚­ã‚¹ãƒˆã‚¨ãƒ‡ã‚£ã‚¿ã§			==*/
+/*==   ç¢ºèªã—ã¦ãã ã•ã„ã€‚													==*/
+/*== 5.[åˆ‡æ–­]ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã€SI-40LA2ã¨åˆ‡æ–­ã—ã¾ã™ã€‚							==*/
+/*== <æ³¨æ„>																==*/
+/*== 	ãƒ¦ãƒ‹ãƒƒãƒˆã¨ã®é€šä¿¡ã¯åŒæœŸå‹ã§ã™ã€‚										==*/
 /*========================================================================*/
 #define STRICT
 #include <stdio.h>
@@ -51,8 +51,6 @@ HANDLE		g_hTCPsockThread;		// Handle of Thread
 FILE		*g_pFile;				// File pointer
 TCHAR		g_FldPath[MAX_PATH];	// Folder path of save data
 TCHAR		g_FileName[MAX_PATH];	// File path of save data
-LPSTR		g_ReportFldPath;		// Folder path of save Beam recodes and Day Reports
-LPSTR		g_PtnDtFldPath;			// Folder path of save Pattern data
 BOOL		g_fConnected;			// Connection status (TRUE = Connect)
 DWORD		g_dwCounter;			// Receive data counter
 WSADATA		g_wsaData;				// WSADATA data structure
@@ -61,6 +59,31 @@ SOCKADDR_IN g_sockaddr;				// address family
 BOOL		g_fDropdown;			// Show Dropdown once
 
 BOOL SwitchFiles(HWND hDlg);
+
+/*--------------------------------------------------------------------------*/
+/* Auto-generate save file path from exe directory and selected unit        */
+/*--------------------------------------------------------------------------*/
+
+static void SetupAutoFilePath(HWND hDlg)
+{
+	TCHAR exeDir[MAX_PATH];
+	GetModuleFileName(NULL, exeDir, MAX_PATH);
+	PathRemoveFileSpec(exeDir);
+
+	char szUnit[16];
+	GetDlgItemText(hDlg, IDC_SELECT, (LPTSTR)szUnit, sizeof(szUnit));
+	const char* unitName = (strstr(szUnit, "Y2") != NULL) ? "Y2" : "Y1";
+
+	_snprintf_s(g_FileName, sizeof(g_FileName), _TRUNCATE, "%s\\capture_%s.txt", exeDir, unitName);
+
+	TCHAR subPath[MAX_PATH];
+	_snprintf_s(subPath, sizeof(subPath), _TRUNCATE, "%s\\Report", exeDir);
+	if (!PathFileExists(subPath)) _mkdir(subPath);
+	_snprintf_s(subPath, sizeof(subPath), _TRUNCATE, "%s\\etc", exeDir);
+	if (!PathFileExists(subPath)) _mkdir(subPath);
+
+	SetDlgItemText(hDlg, IDC_PATH, g_FileName);
+}
 
 /*--------------------------------------------------------------------------*/
 /* Write data to a file														*/
@@ -123,7 +146,7 @@ unsigned __stdcall TCPsockThreadProc(LPVOID hDlg)
 	{
 		if (bOnTimer == false)
 		{
-			// 6•bŠÔƒf[ƒ^‚ª‘—‚ç‚ê‚Ä‚±‚È‚¢ê‡Aˆê’UÚ‘±’f
+			// 6ç§’é–“ãƒ‡ãƒ¼ã‚¿ãŒé€ã‚‰ã‚Œã¦ã“ãªã„å ´åˆã€ä¸€æ—¦æ¥ç¶šæ–­
 			SetTimer((HWND)hDlg, TM_TIMEOUT, 6000, NULL);
 			bOnTimer = true;
 		}
@@ -137,7 +160,7 @@ unsigned __stdcall TCPsockThreadProc(LPVOID hDlg)
 			}
 			g_dwCounter = g_dwCounter + nLength;
 
-			// Ú‘±’fƒ^ƒCƒ}[ƒŠƒZƒbƒg
+			// æ¥ç¶šæ–­ã‚¿ã‚¤ãƒãƒ¼ãƒªã‚»ãƒƒãƒˆ
 			if (bOnTimer == true)
 			{
 				KillTimer((HWND)hDlg, TM_TIMEOUT);
@@ -216,7 +239,7 @@ BOOL TCPSockConnect(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_PORTNUMBER, (LPTSTR)szPort, sizeof(szPort));
 	nPort = atoi(szPort);
 
-	if (szIPaddr[0] == '\0')
+	if (szIPaddr[0] == 'Â¥0')
 	{
 		MessageBox(hDlg, "IPaddress is not input!", "Error", MB_OK);
 		return FALSE;
@@ -290,7 +313,7 @@ BOOL OpenConnection(HWND hDlg)
 	unsigned int ThreadID;
 
 	/* file name check */
-	if (g_FileName == NULL)
+	if (g_FileName[0] == '\0')
 	{
 		return FALSE;
 	}
@@ -299,7 +322,7 @@ BOOL OpenConnection(HWND hDlg)
 
 	if (fResult)
 	{
-		// ’èŠúÚ‘±Šm”F
+		// å®šæœŸæ¥ç¶šç¢ºèª
 		SetTimer((HWND)hDlg, TM_RECONECT, (20 * 60 * 1000), NULL);		// 20min
 
 		/* set the connection status (Connect) */
@@ -326,7 +349,6 @@ BOOL OpenConnection(HWND hDlg)
 		{
 
 			/* change the control status */
-			EnableWindow(GetDlgItem(hDlg, IDC_CHANGE), FALSE);
 			EnableWindow(GetDlgItem(hDlg, IDC_SELECT), FALSE);
 			EnableWindow(GetDlgItem(hDlg, IDC_IPADDRESS), FALSE);
 			EnableWindow(GetDlgItem(hDlg, IDC_PORTNUMBER), FALSE);
@@ -385,7 +407,6 @@ BOOL CloseConnection(HWND hDlg)
 	}
 
 	/* change the control status */
-	EnableWindow(GetDlgItem(hDlg, IDC_CHANGE), TRUE);
 	EnableWindow(GetDlgItem(hDlg, IDC_SELECT), TRUE);
 	EnableWindow(GetDlgItem(hDlg, IDC_IPADDRESS), TRUE);
 	EnableWindow(GetDlgItem(hDlg, IDC_PORTNUMBER), TRUE);
@@ -396,73 +417,11 @@ BOOL CloseConnection(HWND hDlg)
 	KillTimer(hDlg, TM_COUNTER);
 	CounterDisplay(hDlg);
 
-	// ’èŠúÚ‘±Šm”Fƒ^ƒCƒ}[OFF
+	// å®šæœŸæ¥ç¶šç¢ºèªã‚¿ã‚¤ãƒãƒ¼OFF
 	KillTimer(hDlg, TM_RECONECT);
 
 	return TRUE;
 
-}
-
-/*--------------------------------------------------------------------------*/
-/* Save As dialog box														*/
-/*--------------------------------------------------------------------------*/
-
-BOOL SaveFilesDlg(HWND hDlg)
-{
-	OPENFILENAME ofn;
-	memset(&ofn, 0, sizeof(OPENFILENAME));
-
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = hDlg;
-	ofn.lpstrFilter = "*.txt";
-	ofn.lpstrFile = g_FileName;
-	ofn.nMaxFile = MAX_PATH;
-	ofn.Flags = OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
-	ofn.lpstrDefExt = "txt";
-	ofn.nMaxFileTitle = 64;
-
-	if (GetSaveFileName(&ofn) == 0)
-	{
-		return FALSE;
-	}
-	else
-	{
-		InvalidateRect(hDlg, NULL, TRUE);
-	}
-
-	// ƒtƒHƒ‹ƒ_ƒpƒXæ“¾
-	TCHAR cFldPath1[MAX_PATH];
-	TCHAR cFldPath2[MAX_PATH];
-	strncpy_s(cFldPath1, sizeof(cFldPath1), g_FileName, _TRUNCATE);
-	strncpy_s(cFldPath2, sizeof(cFldPath2), g_FileName, _TRUNCATE);
-
-	PathRemoveFileSpec(cFldPath1);
-	PathRemoveFileSpec(cFldPath2);
-
-	/* display save Folder path the on the textbox */
-	SetDlgItemText(hDlg, IDC_PATH, g_FileName);
-
-	/* enable connect button */
-	EnableWindow(GetDlgItem(hDlg, IDC_CONNECT), TRUE);
-
-	// •Û‘¶æƒtƒHƒ‹ƒ_ì¬
-	// ƒr[ƒ€‚Ì‹L˜^+¶YƒŒƒ|[ƒg
-	TCHAR cBeamFldName[] = TEXT("/Report");
-	g_ReportFldPath = (LPSTR)lstrcat(cFldPath1, cBeamFldName);
-	if (PathFileExists(g_ReportFldPath) == false)
-	{
-		_mkdir(g_ReportFldPath);
-	}
-
-	// ˆø‚«‚İ}
-	TCHAR cPtnDtFldName[] = TEXT("/etc");
-	g_PtnDtFldPath = (LPSTR)lstrcat(cFldPath2, cPtnDtFldName);
-	if (PathFileExists(g_PtnDtFldPath) == false)
-	{
-		_mkdir(g_PtnDtFldPath);
-	}
-
-	return TRUE;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -473,36 +432,37 @@ BOOL ChangeSelectUnit(HWND hDlg, WPARAM wParam)
 {
 	char szUint[16];
 
-	// ƒEƒCƒ“ƒhƒEƒnƒ“ƒhƒ‰æ“¾
+	// ã‚¦ã‚¤ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ©å–å¾—
 	HWND hwndComb = GetDlgItem(hDlg, IDC_SELECT);
 
 	if (HIWORD(wParam) == CBN_DROPDOWN)
 	{
 		if (!g_fDropdown)
 		{
-			// •\¦‚·‚éƒŠƒXƒg
-			SendMessage(hwndComb, CB_INSERTSTRING, 0, (LPARAM)"Y1†‹@");
-			SendMessage(hwndComb, CB_INSERTSTRING, 1, (LPARAM)"Y2†‹@");
+			// è¡¨ç¤ºã™ã‚‹ãƒªã‚¹ãƒˆ
+			SendMessage(hwndComb, CB_INSERTSTRING, 0, (LPARAM)"Y1å·æ©Ÿ");
+			SendMessage(hwndComb, CB_INSERTSTRING, 1, (LPARAM)"Y2å·æ©Ÿ");
 			g_fDropdown = TRUE;
 		}
 	}
 	else if (HIWORD(wParam) == CBN_SELCHANGE)
 	{
-		// †‹@‘I‘ğ•ÏX
-		// †‹@‚ğ‘I‘ğ‚µ‚½AIPƒAƒhƒŒƒX‚Æƒ|[ƒg‚ğ©“®‚Åİ’è
+		// å·æ©Ÿé¸æŠå¤‰æ›´
+		// å·æ©Ÿã‚’é¸æŠã—ãŸæ™‚ã€IPã‚¢ãƒ‰ãƒ¬ã‚¹ã¨ãƒãƒ¼ãƒˆã‚’è‡ªå‹•ã§è¨­å®š
 		GetDlgItemText(hDlg, IDC_SELECT, (LPTSTR)szUint, sizeof(szUint));
 		switch (SendMessage(hwndComb, CB_GETCURSEL, 0, 0))
 		{
-		case 0:		// Y1†‹@
+		case 0:		// Y1å·æ©Ÿ
 			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.155.8");
 			break;
-		case 1:		// Y2†‹@
+		case 1:		// Y2å·æ©Ÿ
 			SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.155.9");
 			break;
 		default:
 			// none
 			break;
 		}
+		SetupAutoFilePath(hDlg);
 	}
 	else
 	{
@@ -605,14 +565,14 @@ BOOL SwitchFiles(HWND hDlg)
 	int i = 0;
 	int unit = 0;
 	int dataType = 0;
-	char cKeyWordBeam[] = "&%`$N5-O?";			// ƒr[ƒ€‚Ì‹L˜^‚Ì¯•Êq
-	char cKeyWordBeam2[] = "&%S!<%`$N5-O?";		// ƒr[ƒ€‚Ì‹L˜^‚Ì¯•Êq‚Q
-	char cKeyWordRepo[] = "&%+%&%s%?";			// ¶YƒŒƒ|[ƒg‚Ì¯•Êq
-	char cKeyPaperSend[] = ",";					// †‘—‚èM†
-	char cKeyPattern[] = "&:n@.<T.:";			// ƒpƒ^[ƒ“ƒf[ƒ^‚Ì¯•Êq
-	char str[0xFF] = { 0 };						// ŒŸõ—p
+	char cKeyWordBeam[] = "&%`$N5-O?";			// ãƒ“ãƒ¼ãƒ ã®è¨˜éŒ²ã®è­˜åˆ¥å­
+	char cKeyWordBeam2[] = "&%S!<%`$N5-O?";		// ãƒ“ãƒ¼ãƒ ã®è¨˜éŒ²ã®è­˜åˆ¥å­ï¼’
+	char cKeyWordRepo[] = "&%+%&%s%?";			// ç”Ÿç”£ãƒ¬ãƒãƒ¼ãƒˆã®è­˜åˆ¥å­
+	char cKeyPaperSend[] = ",";					// ç´™é€ã‚Šä¿¡å·
+	char cKeyPattern[] = "&:n@.<T.:";			// ãƒ‘ã‚¿ãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿ã®è­˜åˆ¥å­
+	char str[0xFF] = { 0 };						// æ¤œç´¢ç”¨
 
-	// Categorize(¶YƒŒƒ|[ƒg or ƒr[ƒ€‚Ì‹L˜^ or ƒpƒ^[ƒ“ƒf[ƒ^ or †‘—‚èM†)
+	// Categorize(ç”Ÿç”£ãƒ¬ãƒãƒ¼ãƒˆ or ãƒ“ãƒ¼ãƒ ã®è¨˜éŒ² or ãƒ‘ã‚¿ãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿ or ç´™é€ã‚Šä¿¡å·)
 	errno_t err;
 	if (g_FileName != NULL)
 	{
@@ -622,38 +582,38 @@ BOOL SwitchFiles(HWND hDlg)
 			return  FALSE;
 		}
 
-		// Še•¶š—ñ¯•Êq‚É‚Ä•ª—Ş(10—ñ‚Ü‚ÅŠm”F)
+		// å„æ–‡å­—åˆ—è­˜åˆ¥å­ã«ã¦åˆ†é¡(10åˆ—ã¾ã§ç¢ºèª)
 		for (i; i < 10; i++)
 		{
 			fgets(str, sizeof(str), g_pFile);
 
-			//†‹@æ“¾
+			//å·æ©Ÿå–å¾—
 			if (unit == 0) {
 				unit = IdentifyUnit(str);
 			}
 
-			//ƒr[ƒ€‚Ì‹L˜^‚Ì¯•Êq
+			//ãƒ“ãƒ¼ãƒ ã®è¨˜éŒ²ã®è­˜åˆ¥å­
 			if (NULL != strstr(str, cKeyWordBeam) || NULL != strstr(str, cKeyWordBeam2))
 			{
 				dataType = DP_DELTA_BEAM;
 				break;
 			}
-			//¶YƒŒƒ|[ƒg‚Ì¯•Êq
+			//ç”Ÿç”£ãƒ¬ãƒãƒ¼ãƒˆã®è­˜åˆ¥å­
 			else if (NULL != strstr(str, cKeyWordRepo))
 			{
 				dataType = DP_DELTA_DAY;
 				break;
 			}
-			//ƒpƒ^[ƒ“ƒf[ƒ^‚Ì¯•Êq
+			//ãƒ‘ã‚¿ãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿ã®è­˜åˆ¥å­
 			else if (NULL != strstr(str, cKeyPattern))
 			{
 				dataType = DP_DELTA_PTN;
 				break;
 			}
-			//†‘—‚èM†‚¾‚¯‚Ìê‡A”jŠü
+			//ç´™é€ã‚Šä¿¡å·ã ã‘ã®å ´åˆã€ç ´æ£„
 			else if ((i < 1) && (NULL != strstr(str, cKeyPaperSend)))
 			{
-				// †‘—‚èM†
+				// ç´™é€ã‚Šä¿¡å·
 				return FALSE;
 			}
 		}
@@ -662,14 +622,14 @@ BOOL SwitchFiles(HWND hDlg)
 	}
 	g_pFile = NULL;
 
-	// ŠÔæ“¾
+	// æ™‚é–“å–å¾—
 	time_t timer;
 	struct tm* tm;
 	TCHAR datetime[80];
 	timer = time(NULL);
 	tm = localtime(&timer);
 
-	// ƒtƒHƒ‹ƒ_ƒpƒXæ“¾
+	// ãƒ•ã‚©ãƒ«ãƒ€ãƒ‘ã‚¹å–å¾—
 	strncpy_s(g_FldPath, sizeof(g_FldPath), g_FileName, _TRUNCATE);
 	PathRemoveFileSpec(g_FldPath);
 
@@ -677,32 +637,32 @@ BOOL SwitchFiles(HWND hDlg)
 	AudioNotification(dataType, unit);
 
 	// Copy
-	// ƒr[ƒ€‚Ì‹L˜^‚Æ¶YƒŒƒ|[ƒg‚Í“¯‚¶ƒtƒHƒ‹ƒ_‚É•Û‘¶
+	// ãƒ“ãƒ¼ãƒ ã®è¨˜éŒ²ã¨ç”Ÿç”£ãƒ¬ãƒãƒ¼ãƒˆã¯åŒã˜ãƒ•ã‚©ãƒ«ãƒ€ã«ä¿å­˜
 	if (dataType == DP_DELTA_BEAM)
 	{
-		// ƒr[ƒ€‚Ì‹L˜^
-		strftime((char*)datetime, 80, "\\Report\\BeamRecode_%Y%m%d%H%M%S.txt", tm);
+		// ãƒ“ãƒ¼ãƒ ã®è¨˜éŒ²
+		strftime((char*)datetime, 80, "Â¥Â¥ReportÂ¥Â¥BeamRecode_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sBeamFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sBeamFilePath, false);
 	}
 	else if (dataType == DP_DELTA_DAY)
 	{
-		// ¶YƒŒƒ|[ƒg
-		strftime((char*)datetime, 80, "\\Report\\DayReport_%Y%m%d%H%M%S.txt", tm);
+		// ç”Ÿç”£ãƒ¬ãƒãƒ¼ãƒˆ
+		strftime((char*)datetime, 80, "Â¥Â¥ReportÂ¥Â¥DayReport_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sDayRepFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sDayRepFilePath, false);
 	}
 	else if (dataType == DP_DELTA_PTN)
 	{
-		// ˆø‚Á‚İ}
-		strftime((char*)datetime, 80, "\\etc\\PatternData_%Y-%m-%d-%H%M%S.txt", tm);
+		// å¼•ã£è¾¼ã¿å›³
+		strftime((char*)datetime, 80, "Â¥Â¥etcÂ¥Â¥PatternData_%Y-%m-%d-%H%M%S.txt", tm);
 		LPWSTR sPtnDtFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sPtnDtFilePath, false);
 	}
 	else
 	{
-		// “rØ‚ê‚½ƒf[ƒ^“™
-		strftime((char*)datetime, 80, "\\etc\\Fragment_%Y-%m-%d-%H%M%S.txt", tm);
+		// é€”åˆ‡ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ç­‰
+		strftime((char*)datetime, 80, "Â¥Â¥etcÂ¥Â¥Fragment_%Y-%m-%d-%H%M%S.txt", tm);
 		LPWSTR sPtnDtFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sPtnDtFilePath, false);
 	}
@@ -716,38 +676,38 @@ BOOL SwitchFiles(HWND hDlg)
 
 BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
-	// ƒf[ƒ^óMƒTƒCƒY”•\¦
+	// ãƒ‡ãƒ¼ã‚¿å—ä¿¡ã‚µã‚¤ã‚ºæ•°è¡¨ç¤º
 	if (LOWORD(wParam) == TM_COUNTER)
 	{
-		// óMƒf[ƒ^”XV
+		// å—ä¿¡ãƒ‡ãƒ¼ã‚¿æ•°æ›´æ–°
 		CounterDisplay(hDlg);
 	}
-	// ƒf[ƒ^óMƒ^ƒCƒ€ƒAƒEƒg
+	// ãƒ‡ãƒ¼ã‚¿å—ä¿¡ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆ
 	else if (LOWORD(wParam) == TM_TIMEOUT)
 	{
-		// ƒf[ƒ^óM‚µ‚Ä‚¢‚½ê‡
+		// ãƒ‡ãƒ¼ã‚¿å—ä¿¡ã—ã¦ã„ãŸå ´åˆ
 		if (0 != g_dwCounter)
 		{
-			// Ú‘±’f
+			// æ¥ç¶šæ–­
 			CloseConnection(hDlg);
 
-			// ƒtƒ@ƒCƒ‹ƒŠƒ[ƒh
+			// ãƒ•ã‚¡ã‚¤ãƒ«ãƒªãƒ­ãƒ¼ãƒ‰
 			SwitchFiles(hDlg);
 
-			// ÄÚ‘±
+			// å†æ¥ç¶š
 			if (!OpenConnection(hDlg)) {
 
-				// ˆê’UÚ‘±’f
+				// ä¸€æ—¦æ¥ç¶šæ–­
 				CloseConnection(hDlg);
 
-				// ‚Å‚«‚È‚¯‚ê‚Î1•b‚²‚Æ‚ÉƒŠƒgƒ‰ƒC
+				// ã§ããªã‘ã‚Œã°1ç§’ã”ã¨ã«ãƒªãƒˆãƒ©ã‚¤
 				SetTimer((HWND)hDlg, TM_TIMEOUT, 1000, NULL);
 			}
 		}
-		// ƒf[ƒ^óMI—¹
+		// ãƒ‡ãƒ¼ã‚¿å—ä¿¡çµ‚äº†
 		else
 		{
-			// ƒ^ƒCƒ€ƒAƒEƒgƒ^ƒCƒ}[Äİ’è@6•bŠÔƒf[ƒ^‚ª‘—‚ç‚ê‚Ä‚±‚È‚¢ê‡Aˆê’UÚ‘±’f
+			// ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã‚¿ã‚¤ãƒãƒ¼å†è¨­å®šã€€6ç§’é–“ãƒ‡ãƒ¼ã‚¿ãŒé€ã‚‰ã‚Œã¦ã“ãªã„å ´åˆã€ä¸€æ—¦æ¥ç¶šæ–­
 			SetTimer((HWND)hDlg, TM_TIMEOUT, 6000, NULL);
 		}
 	}
@@ -756,28 +716,28 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 	{
 		if ((g_fConnected == TRUE) && (g_dwCounter == 0))
 		{
-			// Ú‘±’f
+			// æ¥ç¶šæ–­
 			CloseConnection(hDlg);
 
-			// ÄÚ‘±
+			// å†æ¥ç¶š
 			if (!OpenConnection(hDlg)) {
 
-				// ˆê’UÚ‘±’f
+				// ä¸€æ—¦æ¥ç¶šæ–­
 				CloseConnection(hDlg);
 
-				// ‚Å‚«‚È‚¯‚ê‚Î‚P0•b‚²‚Æ‚ÉƒŠƒgƒ‰ƒC
+				// ã§ããªã‘ã‚Œã°ï¼‘0ç§’ã”ã¨ã«ãƒªãƒˆãƒ©ã‚¤
 				SetTimer((HWND)hDlg, TM_RECONECT, 10000, NULL);
 			}
 		}
 		else
 		{
-			// ÄÚ‘±
+			// å†æ¥ç¶š
 			if (!OpenConnection(hDlg)) {
 
-				// ˆê’UÚ‘±’f
+				// ä¸€æ—¦æ¥ç¶šæ–­
 				CloseConnection(hDlg);
 
-				// ‚Å‚«‚È‚¯‚ê‚Î‚P0•b‚²‚Æ‚ÉƒŠƒgƒ‰ƒC
+				// ã§ããªã‘ã‚Œã°ï¼‘0ç§’ã”ã¨ã«ãƒªãƒˆãƒ©ã‚¤
 				SetTimer((HWND)hDlg, TM_RECONECT, 10000, NULL);
 			}
 		}
@@ -797,17 +757,15 @@ BOOL WmTimer(HWND hDlg, WPARAM wParam, LPARAM lParam)
 BOOL WmInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
 	HICON hIcon;
-	// šƒ_ƒCƒAƒƒO‚Ìƒ^ƒCƒgƒ‹‚ğİ’è
-	SetWindowText(hDlg, TEXT("DeltaDataCapture(—ÇìSG)"));
+	// â˜…ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã®ã‚¿ã‚¤ãƒˆãƒ«ã‚’è¨­å®š
+	SetWindowText(hDlg, TEXT("DeltaDataCapture(è‰¯å·SG)"));
 
-	// ‰Šú’lİ’è
-	SetDlgItemText(hDlg, IDC_PATH, (LPCSTR)"C:\\");
-	SetDlgItemText(hDlg, IDC_SELECT, (LPCSTR)"Y1†‹@");
+	// åˆæœŸå€¤è¨­å®š
+	SetDlgItemText(hDlg, IDC_SELECT, (LPCSTR)"Y1å·æ©Ÿ");
 	SetDlgItemText(hDlg, IDC_IPADDRESS, (LPCSTR)"192.168.155.8");
 	SetDlgItemText(hDlg, IDC_PORTNUMBER, (LPCSTR)"10001");
 
-	/* disable connect and disconnect button */
-	EnableWindow(GetDlgItem(hDlg, IDC_CONNECT), FALSE);
+	/* disable disconnect button only; connect is ready from start */
 	EnableWindow(GetDlgItem(hDlg, IDC_DISCONNECT), FALSE);
 
 	/* Initialize global variable */
@@ -817,7 +775,9 @@ BOOL WmInitDialog(HWND hDlg, WPARAM wParam, LPARAM lParam)
 
 	SockInitialize(hDlg, g_wsaData);
 
-	// ƒAƒCƒRƒ“‚ÌƒZƒbƒg
+	SetupAutoFilePath(hDlg);
+
+	// ã‚¢ã‚¤ã‚³ãƒ³ã®ã‚»ãƒƒãƒˆ
 	hIcon = (HICON)LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 16, 16, 0);
 	SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 	
@@ -871,10 +831,7 @@ BOOL WmCommand(HWND hDlg, WPARAM wParam, LPARAM lParam)
 {
 	switch (LOWORD(wParam))
 	{
-	case IDC_CHANGE:
-		return SaveFilesDlg(hDlg);
-
-	case IDC_SELECT:	// ƒhƒƒbƒvƒ_ƒEƒ“ƒŠƒXƒg
+	case IDC_SELECT:	// ãƒ‰ãƒ­ãƒƒãƒ—ãƒ€ã‚¦ãƒ³ãƒªã‚¹ãƒˆ
 		return ChangeSelectUnit(hDlg, wParam);
 
 	case IDC_CONNECT:
