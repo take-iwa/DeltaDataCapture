@@ -70,9 +70,11 @@ static void SetupAutoFilePath(HWND hDlg)
 	GetModuleFileName(NULL, exeDir, MAX_PATH);
 	PathRemoveFileSpec(exeDir);
 
-	char szUnit[16];
-	GetDlgItemText(hDlg, IDC_SELECT, (LPTSTR)szUnit, sizeof(szUnit));
-	const char* unitName = (strstr(szUnit, "Y2") != NULL) ? "Y2" : "Y1";
+	// GetDlgItemTextはCBN_SELCHANGE時に旧値を返すことがあるため
+	// CB_GETCURSELでインデックスを使う（CB_ERR or 0 → Y1、1 → Y2）
+	HWND hwndComb = GetDlgItem(hDlg, IDC_SELECT);
+	int sel = (int)SendMessage(hwndComb, CB_GETCURSEL, 0, 0);
+	const char* unitName = (sel == 1) ? "Y2" : "Y1";
 
 	_snprintf_s(g_FileName, sizeof(g_FileName), _TRUNCATE, "%s\\capture_%s.txt", exeDir, unitName);
 
