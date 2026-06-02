@@ -241,7 +241,7 @@ BOOL TCPSockConnect(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_PORTNUMBER, (LPTSTR)szPort, sizeof(szPort));
 	nPort = atoi(szPort);
 
-	if (szIPaddr[0] == '¥0')
+	if (szIPaddr[0] == '\0')
 	{
 		MessageBox(hDlg, "IPaddress is not input!", "Error", MB_OK);
 		return FALSE;
@@ -643,28 +643,28 @@ BOOL SwitchFiles(HWND hDlg)
 	if (dataType == DP_DELTA_BEAM)
 	{
 		// ビームの記録
-		strftime((char*)datetime, 80, "¥¥Report¥¥BeamRecode_%Y%m%d%H%M%S.txt", tm);
+		strftime((char*)datetime, 80, "\\Report\\BeamRecode_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sBeamFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sBeamFilePath, false);
 	}
 	else if (dataType == DP_DELTA_DAY)
 	{
 		// 生産レポート
-		strftime((char*)datetime, 80, "¥¥Report¥¥DayReport_%Y%m%d%H%M%S.txt", tm);
+		strftime((char*)datetime, 80, "\\Report\\DayReport_%Y%m%d%H%M%S.txt", tm);
 		LPWSTR sDayRepFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sDayRepFilePath, false);
 	}
 	else if (dataType == DP_DELTA_PTN)
 	{
 		// 引っ込み図
-		strftime((char*)datetime, 80, "¥¥etc¥¥PatternData_%Y-%m-%d-%H%M%S.txt", tm);
+		strftime((char*)datetime, 80, "\\etc\\PatternData_%Y-%m-%d-%H%M%S.txt", tm);
 		LPWSTR sPtnDtFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sPtnDtFilePath, false);
 	}
 	else
 	{
 		// 途切れたデータ等
-		strftime((char*)datetime, 80, "¥¥etc¥¥Fragment_%Y-%m-%d-%H%M%S.txt", tm);
+		strftime((char*)datetime, 80, "\\etc\\Fragment_%Y-%m-%d-%H%M%S.txt", tm);
 		LPWSTR sPtnDtFilePath = (LPWSTR)lstrcat(g_FldPath, datetime);
 		CopyFile(g_FileName, (LPCSTR)sPtnDtFilePath, false);
 	}
